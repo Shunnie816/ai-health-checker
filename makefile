@@ -21,11 +21,11 @@ venv: $(STAMP)
 run: venv
 	$(VENV_PYTHON) src/ai_health_checker/main.py
 
-# requirements.txtを更新
+# requirements.txtを更新(ロック更新)
 compile:
 	pip-compile
 
-# requirements.txtに従ってpip install
+# requirements.txtに従ってpip install(環境同期)
 sync:
 	pip-sync
 

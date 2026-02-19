@@ -17,9 +17,9 @@ $(STAMP): requirements.txt $(VENV)\Scripts\activate
 
 venv: $(STAMP)
 
-# app.pyを実行
+# src/ai_health_checker/main.pyを実行
 run: venv
-	$(VENV_PYTHON) app.py
+	$(VENV_PYTHON) src/ai_health_checker/main.py
 
 # requirements.txtを更新
 compile:

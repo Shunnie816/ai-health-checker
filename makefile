@@ -19,7 +19,7 @@ venv: $(STAMP)
 
 # src/ai_health_checker/main.pyを実行
 run: venv
-	$(VENV_PYTHON) src/ai_health_checker/main.py
+	set PYTHONPATH=src && $(VENV_PYTHON) -m ai_health_checker.main
 
 # requirements.txtを更新(ロック更新)
 compile:

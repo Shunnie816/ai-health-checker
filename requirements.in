@@ -2,3 +2,5 @@ pandas
 openpyxl
 fastapi 
 uvicorn
+requests
+python-dotenv

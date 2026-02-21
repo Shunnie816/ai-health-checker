@@ -3,6 +3,43 @@ from ai_health_checker.etl import load_and_concat_all_data
 from pydantic import BaseModel
 from typing import Optional
 from fastapi import HTTPException
+import requests
+from dotenv import load_dotenv
+import os
+
+# .env 読み込み
+load_dotenv()
+
+# 環境変数取得
+API_KEY = os.getenv("DATASET_API_KEY")
+DATASET_ID = os.getenv("DATASET_ID")
+
+url = f"https://api.dify.ai/v1/datasets/{DATASET_ID}/document/create-by-text"
+get_url = "https://api.dify.ai/v1/datasets?page=1&limit=20"
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json",
+}
+
+data = {
+    "name": "2024年3月_健康レポート",
+    "text": """
+    2024年3月：
+    平均残業72.32分、
+    平均疲労度3.79。
+    相関は0.29。
+    """,
+    "indexing_technique": "high_quality",
+}
+
+# response = requests.post(url, headers=headers, json=data)
+res = requests.get(get_url, headers=headers)
+
+# print("status:", response.status_code)
+# print("text:", response.text)
+print("status:", res.status_code)
+print("text:", res.text)
 
 
 class MonthlySummary(BaseModel):

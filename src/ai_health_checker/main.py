@@ -20,5 +20,6 @@ def generate_and_register(year: int = Query(...)) -> dict[str, Any]:
         "status": "success",
         "year": year,
         "summary": summary,
-        "dify_status": dify_response,
+        "dify_status": dify_response.status_code,
+        "text": dify_response.text,
     }

@@ -19,9 +19,11 @@ def register_to_dify(name: str, text: list[str]) -> requests.Response:
         "Content-Type": "application/json",
     }
 
+    joined_text = f"{name}\n\n" + "\n\n".join(text)
+
     data = {
         "name": name,
-        "text": text,
+        "text": joined_text,
         "indexing_technique": "high_quality",
     }
 

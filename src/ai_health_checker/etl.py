@@ -18,7 +18,19 @@ column_map = {
 WORK_MINUTES = 9 * 60
 
 
-def load_and_clean_sheet(file_path, sheet_name):
+def load_and_concat_all_data(year: int) -> pd.DataFrame:
+    """
+    全てのデータを読み込み、結合して返す
+    """
+    xls = pd.ExcelFile(file_path)
+    sheet_names: list[str] = [
+        s for s in xls.sheet_names if s != "リストマスタ" and isinstance(s, str)
+    ]
+    dfs: list[pd.DataFrame] = [load_and_clean_sheet(file_path, s) for s in sheet_names]
+    return pd.concat(dfs, ignore_index=True)
+
+
+def load_and_clean_sheet(file_path: str, sheet_name: str) -> pd.DataFrame:
     df = pd.read_excel(file_path, sheet_name=sheet_name, header=1)
     # Unnamed削除
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
@@ -35,14 +47,3 @@ def load_and_clean_sheet(file_path, sheet_name):
     ).dt.total_seconds() / 60
     df["overtime_min_calculated"] = df["work_duration_min"] - WORK_MINUTES
     return df
-
-
-def load_and_concat_all_data():
-    """
-    全てのデータを読み込み、結合して返す
-    """
-    xls = pd.ExcelFile(file_path)
-    sheet_names = [s for s in xls.sheet_names if s != "リストマスタ"]
-    return pd.concat(
-        [load_and_clean_sheet(file_path, s) for s in sheet_names], ignore_index=True
-    )

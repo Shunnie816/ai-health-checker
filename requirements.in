@@ -1,8 +1,10 @@
 pandas
+pandas-stubs
 openpyxl
 fastapi 
 uvicorn
 requests
+types-requests
 python-dotenv
 ruff
 black

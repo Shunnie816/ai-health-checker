@@ -41,12 +41,16 @@ mypy-extensions==1.1.0
     #   black
     #   mypy
 numpy==2.4.2
-    # via pandas
+    # via
+    #   pandas
+    #   pandas-stubs
 openpyxl==3.1.5
     # via -r requirements.in
 packaging==26.0
     # via black
 pandas==3.0.1
+    # via -r requirements.in
+pandas-stubs==3.0.0.260204
     # via -r requirements.in
 pathspec==1.0.4
     # via
@@ -72,6 +76,8 @@ six==1.17.0
     # via python-dateutil
 starlette==0.52.1
     # via fastapi
+types-requests==2.32.4.20260107
+    # via -r requirements.in
 typing-extensions==4.15.0
     # via
     #   fastapi
@@ -86,6 +92,8 @@ typing-inspection==0.4.2
 tzdata==2025.3
     # via pandas
 urllib3==2.6.3
-    # via requests
+    # via
+    #   requests
+    #   types-requests
 uvicorn==0.41.0
     # via -r requirements.in

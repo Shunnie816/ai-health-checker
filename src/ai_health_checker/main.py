@@ -70,12 +70,10 @@ class MonthlySummary(BaseModel):
 
 app = FastAPI()
 
-# 起動時に一度だけ読み込む
-df = load_and_concat_all_data()
-
 
 @app.get("/monthly-summary", response_model=MonthlySummary)
 def monthly_summary(year: int, month: int):
+    df = load_and_concat_all_data()
     filtered = df[(df["date"].dt.year == year) & (df["date"].dt.month == month)]
 
     if filtered.empty:
@@ -102,6 +100,7 @@ def monthly_summary(year: int, month: int):
 
 @app.get("/monthly-summary-text", response_model=str)
 def monthly_summary_text(year: int, month: int):
+    df = load_and_concat_all_data()
     filtered = df[(df["date"].dt.year == year) & (df["date"].dt.month == month)]
 
     if filtered.empty:
@@ -136,6 +135,7 @@ def interpret_correlation(value):
 
 @app.get("/all-month-summaries", response_model=list[str])
 def all_month_summaries():
+    df = load_and_concat_all_data()
     summaries = []
 
     for (year, month), group in df.groupby([df["date"].dt.year, df["date"].dt.month]):

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make lint*)",
+      "Bash(make lint-fix*)",
+      "Bash(make format*)",
+      "Bash(make typecheck*)",
+      "Bash(make test*)",
+      "Bash(make run*)",
+      "Bash(make venv*)",
+      "Bash(make compile*)",
+      "Bash(make sync*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git fetch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(gh issue*)",
+      "Bash(gh pr*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push origin main*)",
+      "Bash(git reset --hard*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true
+}

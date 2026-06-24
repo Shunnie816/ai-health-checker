@@ -9,3 +9,5 @@ python-dotenv
 ruff
 black
 mypy
+pytest
+pytest-cov

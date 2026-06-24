@@ -211,3 +211,6 @@ data/
 
 # make stamp files
 venv.installed
+
+# Serena AI
+.serena/

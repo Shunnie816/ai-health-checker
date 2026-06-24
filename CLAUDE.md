@@ -96,7 +96,7 @@ DATASET_ID=       # Dify Dataset ID
 ## Git ワークフロー
 
 - **main**: プロダクションブランチ。直接 commit・push 禁止
-- **ブランチ命名規則**: `{prefix}/issue-{number}-{slug}`
+- **作業ブランチ**: `{prefix}/issue-{number}-{slug}` のみ。**develop ブランチは使用しない**
   - 例: `feature/issue-1-firestore-data-model`
   - プレフィックス: `feature`, `fix`, `chore`, `refactor`, `docs`, `test`
 - **Issue 駆動開発**: 必ず GitHub Issue を起点に作業開始

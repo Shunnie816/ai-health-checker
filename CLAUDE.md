@@ -48,13 +48,21 @@ Cloud Scheduler（定期実行）
 
 ```
 ai-health-checker/
-├── backend/                      # FastAPI (Cloud Run) ※ 現在は src/ 以下、移行予定
+├── backend/                      # FastAPI (Cloud Run)
 │   ├── src/ai_health_checker/
-│   └── tests/
+│   │   ├── main.py               # FastAPI エントリーポイント
+│   │   ├── etl.py                # PoC: Excel 読み込み（移行スクリプト用）
+│   │   ├── analysis.py           # PoC: 月次集計・相関分析
+│   │   └── dify.py               # PoC: Dify Dataset API 連携
+│   ├── tests/
+│   ├── requirements.in
+│   └── requirements.txt
 ├── frontend/                     # Next.js (App Hosting) ※ 未作成
 ├── docs/                         # 要件・設計ドキュメント
 │   ├── requirements.md
 │   └── architecture.md
+├── pyproject.toml                # ruff / black / mypy 設定
+├── makefile
 └── .github/workflows/
 ```
 
@@ -113,7 +121,7 @@ DATASET_ID=       # Dify Dataset ID
 ## CI
 
 GitHub Actions（`.github/workflows/ci.yml`）が PR・main push 時に以下を実行：
-- `ruff check src/`（lint）
-- `mypy src/`（型チェック）
+- `ruff check backend/src/`（lint）
+- `mypy backend/src/`（型チェック）
 
 Claude は PR 作成前に必ず `make lint` と `make typecheck` を実行する。

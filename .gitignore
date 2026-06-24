@@ -205,3 +205,12 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# data files
+data/
+
+# make stamp files
+venv.installed
+
+# Serena AI
+.serena/

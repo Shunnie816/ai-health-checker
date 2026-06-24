@@ -7,33 +7,26 @@
 **現在のフェーズ**: PoC（Excel → ETL → Dify RAG）  
 **将来のゴール**: Next.js + Firestore + FastAPI + Dify による本格的なライフログプラットフォーム
 
+> 詳細は `docs/` を参照：
+> - [要件定義](docs/requirements.md) — データモデル・MVP スコープ・機能仕様
+> - [アーキテクチャ設計](docs/architecture.md) — 全体構成・データフロー・ディレクトリ設計
+
 ---
 
-## アーキテクチャ
+## アーキテクチャ（概要）
 
-### 現在（PoC）
 ```
-Excel（Google Drive）
-↓
-ETL（pandas）
-↓
-FastAPI
-↓
-Dify Dataset（RAG）
+Firebase App Hosting（Next.js）
+        ↓ Firebase Auth token
+Cloud Run（FastAPI）
+  ├── Firestore    ← CRUD
+  ├── Dify API     ← AI 分析
+  └── Email        ← 通知
+        ↑
+Cloud Scheduler（定期実行）
 ```
 
-### 将来（移行先）
-```
-Next.js App（データ入力フォーム）
-↓
-Firestore（ライフログ蓄積）
-↓
-FastAPI（分析 API）
-↓
-Dify Dataset（RAG）
-↓
-LLM 分析
-```
+詳細: [docs/architecture.md](docs/architecture.md)
 
 ---
 
@@ -41,26 +34,28 @@ LLM 分析
 
 | レイヤー | 技術 |
 |---|---|
+| フロントエンド | Next.js / TypeScript（UI ライブラリは未定） |
 | バックエンド | Python / FastAPI |
-| データ処理 | pandas |
-| データベース（将来） | Firestore |
-| フロントエンド（将来） | Next.js / TypeScript / MUI |
+| 認証 | Firebase Auth |
+| データベース | Firestore |
 | AI | Dify / RAG |
-| インフラ（将来） | Docker / Cloud Run |
+| インフラ | Cloud Run（backend）/ Firebase App Hosting（frontend） |
+| 通知 | Email |
 
 ---
 
 ## ディレクトリ構成
 
 ```
-src/ai_health_checker/
-├── __init__.py
-├── main.py        # FastAPI エントリーポイント（POST /generate-and-register）
-├── etl.py         # Excel 読み込み・データ整形
-├── analysis.py    # 月次集計・相関分析・サマリー生成
-└── dify.py        # Dify Dataset API 連携
-
-tests/             # pytest テスト（Issue 駆動で追加予定）
+ai-health-checker/
+├── backend/                      # FastAPI (Cloud Run) ※ 現在は src/ 以下、移行予定
+│   ├── src/ai_health_checker/
+│   └── tests/
+├── frontend/                     # Next.js (App Hosting) ※ 未作成
+├── docs/                         # 要件・設計ドキュメント
+│   ├── requirements.md
+│   └── architecture.md
+└── .github/workflows/
 ```
 
 ---
@@ -108,9 +103,10 @@ DATASET_ID=       # Dify Dataset ID
 ## 開発方針
 
 - **優先順位**: データ入力・蓄積 → 分析機能
-- **MVP で扱うデータ**: `date`, `mood`, `fatigue`, `comment`
+- **MVP データ**: `date`, `is_holiday`, `mood`, `fatigue`, `work_start`, `work_end`, `overtime_score`, `gym`, `comment`
 - 最初から複雑な分析機能を作らない
 - 蓄積されていないデータは後から取り戻せない
+- 詳細スコープは [docs/requirements.md](docs/requirements.md) を参照
 
 ---
 

@@ -18,7 +18,7 @@ $(STAMP): backend/requirements.txt $(VENV)/Scripts/activate
 venv: $(STAMP)
 
 run: venv
-	PYTHONPATH=backend/src $(VENV_PYTHON) -m ai_health_checker.main
+	PYTHONPATH=backend/src $(VENV)/Scripts/uvicorn ai_health_checker.main:app --reload --port 8000
 
 # requirements.txtを更新(ロック更新)
 compile:

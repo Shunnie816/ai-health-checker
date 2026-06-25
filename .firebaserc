@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "ai-health-checker-c9d25",
+    "staging": "ai-health-checker-stg"
+  }
+}

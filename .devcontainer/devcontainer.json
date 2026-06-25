@@ -9,23 +9,39 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        // Python
         "ms-python.python",
         "ms-python.pylance",
         "charliermarsh.ruff",
         "ms-python.black-formatter",
+        // JavaScript / TypeScript
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "ms-azuretools.vscode-docker"
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        // Git
+        "eamodio.gitlens",
+        "GitHub.vscode-pull-request-github",
+        // 生産性
+        "usernamehw.errorlens",
+        "gruntfuggly.todo-tree",
+        "streetsidesoftware.code-spell-checker",
+        "pkief.material-icon-theme",
+        // インフラ
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions"
       ],
       "settings": {
         "python.defaultInterpreterPath": "${containerWorkspaceFolder}/venv/bin/python",
         "editor.formatOnSave": true,
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter"
-        }
+        },
+        "workbench.iconTheme": "material-icon-theme"
       }
     }
   },
   "postCreateCommand": "make venv",
+  "postStartCommand": "npm install -g @anthropic-ai/claude-code",
   "remoteUser": "vscode"
 }

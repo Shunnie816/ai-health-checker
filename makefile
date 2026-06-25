@@ -1,4 +1,4 @@
-.PHONY: venv run lint lint-fix format typecheck test compile sync upgrade clean
+.PHONY: venv run lint lint-fix format typecheck test compile sync upgrade clean docker-build docker-up docker-down
 
 VENV = venv
 PYTHON = py -3.14
@@ -48,6 +48,15 @@ typecheck: venv
 test: venv
 	PYTHONPATH=backend/src $(VENV_PYTHON) -m pytest backend/tests/ -v; \
 	exit_code=$$?; [ $$exit_code -eq 5 ] && exit 0 || exit $$exit_code
+
+docker-build:
+	docker compose build
+
+docker-up:
+	docker compose up
+
+docker-down:
+	docker compose down
 
 # venvを削除
 clean:

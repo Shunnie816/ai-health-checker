@@ -1,8 +1,9 @@
 pandas
 pandas-stubs
 openpyxl
-fastapi 
+fastapi
 uvicorn
+firebase-admin
 requests
 types-requests
 python-dotenv

@@ -4,7 +4,9 @@ target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]
-ignore = []
+ignore = [
+  "B008",  # FastAPI の Depends() はデフォルト引数での関数呼び出しが必須パターン
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -19,3 +21,7 @@ python_version = "3.14"
 strict = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["firebase_admin", "firebase_admin.*"]
+ignore_missing_imports = true

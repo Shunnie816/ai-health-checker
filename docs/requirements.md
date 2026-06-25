@@ -12,24 +12,28 @@
 
 ## データモデル（ライフログ）
 
-| フィールド | 型 | 必須 | 備考 |
-|---|---|---|---|
-| date | date | ✅ | 記録日 |
-| is_holiday | bool | ✅ | 休日フラグ（true の場合、勤務時間不要） |
-| mood | int | ✅ | 気分スコア |
-| fatigue | int | ✅ | 疲労スコア |
-| comment | text | - | 自由記述 |
-| work_start | time | △ | 勤務開始時刻（is_holiday=false の場合必須） |
-| work_end | time | △ | 勤務終了時刻（is_holiday=false の場合必須） |
-| overtime_minutes | int | - | 自動算出（work_start / work_end から計算） |
-| overtime_score | int | - | ルールで自動算出（下記参照） |
-| gym | bool | - | ジム行ったチェック |
-| sleep_hours | float | - | Apple Health 連携（将来対応） |
-| weight | float | - | Apple Health 連携（将来対応） |
+| フィールド | 型 | 必須 | 範囲 | 備考 |
+|---|---|---|---|---|
+| date | date | ✅ | - | 記録日 |
+| is_holiday | bool | ✅ | - | 休日フラグ（true の場合、勤務時間不要） |
+| mood_morning | int | ✅ | -5〜+5 | 朝の気分 |
+| mood_after_work | int | △ | -5〜+5 | 仕事終わりの気分（is_holiday=false の場合必須） |
+| fatigue | int | ✅ | 1〜5 | 疲れ度 |
+| comment | text | - | - | 感想・気分の自由記述 |
+| work_content | text | - | - | その日の仕事内容（is_holiday=false の場合のみ） |
+| work_start | time | △ | - | 勤務開始時刻（is_holiday=false の場合必須） |
+| work_end | time | △ | - | 勤務終了時刻（is_holiday=false の場合必須） |
+| overtime_minutes | int | - | - | 自動算出：(work_end - work_start) - 9時間 |
+| overtime_score | int | - | 0〜5 | ルールで自動算出（下記参照） |
+| gym | bool | - | - | ジム行ったチェック |
+| sleep_hours | float | - | - | Apple Health 連携（将来対応） |
+| weight | float | - | - | Apple Health 連携（将来対応） |
 
 ### 残業スコア算出ルール
 
 ```
+overtime_minutes = (work_end - work_start) - 9時間（フレックス制）
+
 overtime_minutes = 0          → score 0
 0  < overtime_minutes ≤ 30   → score 1
 30 < overtime_minutes ≤ 60   → score 2

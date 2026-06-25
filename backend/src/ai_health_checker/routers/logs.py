@@ -1,0 +1,40 @@
+from fastapi import APIRouter, Depends, HTTPException
+from google.cloud.firestore import Client
+
+from ai_health_checker.dependencies import get_current_user_id, get_db
+from ai_health_checker.models.log import LogCreate, LogInDB, LogUpdate
+from ai_health_checker.services import log_service
+
+router = APIRouter(prefix="/logs", tags=["logs"])
+
+
+@router.post("", response_model=LogInDB, status_code=201)
+async def create_log(
+    payload: LogCreate,
+    user_id: str = Depends(get_current_user_id),
+    db: Client = Depends(get_db),
+) -> LogInDB:
+    return log_service.create_log(db, user_id, payload)
+
+
+@router.get("", response_model=list[LogInDB])
+async def list_logs(
+    start_date: str | None = None,
+    end_date: str | None = None,
+    user_id: str = Depends(get_current_user_id),
+    db: Client = Depends(get_db),
+) -> list[LogInDB]:
+    return log_service.list_logs(db, user_id, start_date, end_date)
+
+
+@router.put("/{log_id}", response_model=LogInDB)
+async def update_log(
+    log_id: str,
+    payload: LogUpdate,
+    user_id: str = Depends(get_current_user_id),
+    db: Client = Depends(get_db),
+) -> LogInDB:
+    try:
+        return log_service.update_log(db, user_id, log_id, payload)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

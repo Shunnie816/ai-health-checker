@@ -42,7 +42,7 @@
       }
     }
   },
-  "postCreateCommand": "sudo git config --system safe.directory '*' && make venv",
+  "postCreateCommand": "sudo git config --system safe.directory '*' && make venv && npm install -g firebase-tools",
   "postStartCommand": "npm install -g @anthropic-ai/claude-code",
   "remoteUser": "vscode"
 }

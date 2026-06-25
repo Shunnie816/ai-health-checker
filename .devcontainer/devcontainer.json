@@ -6,42 +6,41 @@
       "version": "24"
     }
   },
+  "mounts": [
+    {
+      "source": "${localEnv:USERPROFILE}/.claude",
+      "target": "/home/vscode/.claude",
+      "type": "bind"
+    },
+    {
+      "source": "${localEnv:USERPROFILE}/.gitconfig",
+      "target": "/home/vscode/.gitconfig",
+      "type": "bind"
+    }
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
-        // Python
         "ms-python.python",
         "ms-python.pylance",
         "charliermarsh.ruff",
         "ms-python.black-formatter",
-        // JavaScript / TypeScript
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss",
-        "formulahendry.auto-rename-tag",
-        // Git
         "eamodio.gitlens",
         "GitHub.vscode-pull-request-github",
-        // 生産性
-        "usernamehw.errorlens",
-        "gruntfuggly.todo-tree",
-        "streetsidesoftware.code-spell-checker",
-        "pkief.material-icon-theme",
-        // インフラ
-        "ms-azuretools.vscode-docker",
-        "github.vscode-github-actions"
+        "ms-azuretools.vscode-docker"
       ],
       "settings": {
         "python.defaultInterpreterPath": "${containerWorkspaceFolder}/venv/bin/python",
         "editor.formatOnSave": true,
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter"
-        },
-        "workbench.iconTheme": "material-icon-theme"
+        }
       }
     }
   },
-  "postCreateCommand": "make venv",
+  "postCreateCommand": "sudo git config --system safe.directory '*' && make venv",
   "postStartCommand": "npm install -g @anthropic-ai/claude-code",
   "remoteUser": "vscode"
 }

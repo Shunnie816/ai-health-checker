@@ -1,36 +1,45 @@
 .PHONY: venv run lint lint-fix format typecheck test compile sync upgrade clean docker-build docker-up docker-down
 
 VENV = venv
-PYTHON = py -3.14
-VENV_PYTHON = $(VENV)/Scripts/python
-PIP = $(VENV)/Scripts/pip
 STAMP = $(VENV)/.installed
 
+# Windows: Scripts/  Linux/macOS (devcontainer): bin/
+ifeq ($(OS),Windows_NT)
+  PYTHON = py -3.14
+  VENV_SCRIPTS = $(VENV)/Scripts
+else
+  PYTHON = python3
+  VENV_SCRIPTS = $(VENV)/bin
+endif
+
+VENV_PYTHON = $(VENV_SCRIPTS)/python
+PIP = $(VENV_SCRIPTS)/pip
+
 # venvは一度だけ作る
-$(VENV)/Scripts/activate:
+$(VENV_SCRIPTS)/activate:
 	$(PYTHON) -m venv $(VENV)
 
 # requirementsが更新されたらpip installだけ実行
-$(STAMP): backend/requirements.txt $(VENV)/Scripts/activate
+$(STAMP): backend/requirements.txt $(VENV_SCRIPTS)/activate
 	$(PIP) install -r backend/requirements.txt
 	$(VENV_PYTHON) -c "open('$(STAMP)', 'w').close()"
 
 venv: $(STAMP)
 
 run: venv
-	PYTHONPATH=backend/src $(VENV)/Scripts/uvicorn ai_health_checker.main:app --reload --port 8000
+	PYTHONPATH=backend/src $(VENV_SCRIPTS)/uvicorn ai_health_checker.main:app --reload --port 8000
 
 # requirements.txtを更新(ロック更新)
 compile:
-	$(VENV)/Scripts/pip-compile backend/requirements.in --output-file backend/requirements.txt
+	$(VENV_SCRIPTS)/pip-compile backend/requirements.in --output-file backend/requirements.txt
 
 # requirements.txtに従ってpip install(環境同期)
 sync:
-	$(VENV)/Scripts/pip-sync backend/requirements.txt
+	$(VENV_SCRIPTS)/pip-sync backend/requirements.txt
 
 # requirements.txtを更新し、pip install
 upgrade:
-	$(VENV)/Scripts/pip-compile --upgrade backend/requirements.in --output-file backend/requirements.txt
+	$(VENV_SCRIPTS)/pip-compile --upgrade backend/requirements.in --output-file backend/requirements.txt
 
 lint: venv
 	$(VENV_PYTHON) -m ruff check backend/src/

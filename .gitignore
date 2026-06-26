@@ -215,3 +215,10 @@ venv.installed
 
 # Serena AI
 .serena/
+
+# Firebase debug logs
+firebase-debug.log
+firestore-debug.log
+
+# Node.js (Firebase CLI etc.)
+node_modules/

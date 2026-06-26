@@ -37,7 +37,7 @@ run-emulator: venv
 
 # Firebase Emulator Suite 起動（Auth: 9099 / Firestore: 8080 / UI: 4000）
 emulator:
-	firebase emulators:start --project demo-local
+	firebase emulators:start --project demo-local --only auth,firestore
 
 # requirements.txtを更新(ロック更新)
 compile:

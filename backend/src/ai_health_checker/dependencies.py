@@ -2,10 +2,11 @@ from fastapi import Header, HTTPException
 from firebase_admin import auth
 from google.cloud.firestore import Client
 
-from ai_health_checker.firebase_app import get_firestore
+from ai_health_checker.firebase_app import _initialize, get_firestore
 
 
 async def get_current_user_id(authorization: str = Header(...)) -> str:
+    _initialize()
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Bearer token required")
     token = authorization[len("Bearer "):]

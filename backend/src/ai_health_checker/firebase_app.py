@@ -3,7 +3,15 @@ from typing import cast
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.auth.credentials import AnonymousCredentials
 from google.cloud.firestore import Client
+
+
+class _EmulatorCredentials(credentials.Base):  # type: ignore[misc]
+    """Firestore/Auth emulator 用のダミー認証情報。ADC 不要。"""
+
+    def get_credential(self) -> AnonymousCredentials:
+        return AnonymousCredentials()  # type: ignore[no-untyped-call]
 
 
 def _initialize() -> None:
@@ -13,8 +21,10 @@ def _initialize() -> None:
     if key_path:
         firebase_admin.initialize_app(credentials.Certificate(key_path))
     elif os.getenv("FIRESTORE_EMULATOR_HOST"):
-        # エミュレータ使用時: 認証情報不要、デモプロジェクトIDで初期化
-        firebase_admin.initialize_app(options={"projectId": "demo-local"})
+        firebase_admin.initialize_app(
+            _EmulatorCredentials(),
+            options={"projectId": "ai-health-checker-stg"},
+        )
     else:
         # Cloud Run: Application Default Credentials を使用
         firebase_admin.initialize_app()

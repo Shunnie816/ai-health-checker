@@ -32,12 +32,12 @@ run: venv
 # エミュレータに接続してバックエンドを起動（make emulator と併用）
 run-emulator: venv
 	FIRESTORE_EMULATOR_HOST=localhost:8080 \
-	FIREBASE_AUTH_EMULATOR_HOST=http://localhost:9099 \
+	FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 \
 	PYTHONPATH=backend/src $(VENV_SCRIPTS)/uvicorn ai_health_checker.main:app --reload --port 8000
 
 # Firebase Emulator Suite 起動（Auth: 9099 / Firestore: 8080 / UI: 4000）
 emulator:
-	firebase emulators:start --project demo-local --only auth,firestore
+	firebase emulators:start --project ai-health-checker-stg --only auth,firestore
 
 # 開発で使う全ポートのプロセスを停止
 # 3000: Next.js / 8000: backend / 8080: Firestore emulator / 9099: Auth emulator / 4000: Emulator UI

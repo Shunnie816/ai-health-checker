@@ -57,7 +57,7 @@ const DEFAULT_FIELDS: LogFormFields = {
   date: todayString(),
   is_holiday: false,
   mood_morning: 0,
-  mood_after_work: null,
+  mood_after_work: 0,
   fatigue: 3,
   comment: "",
   work_content: "",
@@ -78,11 +78,15 @@ export function useLogForm(initial?: Partial<LogFormFields>) {
   ) {
     setFields((prev) => {
       const next = { ...prev, [key]: value };
-      if (key === "is_holiday" && value === true) {
-        next.work_start = "";
-        next.work_end = "";
-        next.mood_after_work = null;
-        next.work_content = "";
+      if (key === "is_holiday") {
+        if (value === true) {
+          next.work_start = "";
+          next.work_end = "";
+          next.mood_after_work = null;
+          next.work_content = "";
+        } else {
+          if (next.mood_after_work === null) next.mood_after_work = 0;
+        }
       }
       return next;
     });

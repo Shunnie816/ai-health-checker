@@ -48,7 +48,7 @@ export function LogForm({ existingLog }: Props) {
         date: fields.date,
         is_holiday: fields.is_holiday,
         mood_morning: fields.mood_morning,
-        mood_after_work: fields.is_holiday ? null : fields.mood_after_work,
+        mood_after_work: fields.is_holiday ? null : (fields.mood_after_work ?? 0),
         fatigue: fields.fatigue,
         comment: toNullableStr(fields.comment),
         work_content: fields.is_holiday ? null : toNullableStr(fields.work_content),

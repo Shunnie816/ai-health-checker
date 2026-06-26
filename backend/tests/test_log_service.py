@@ -1,0 +1,97 @@
+from unittest.mock import MagicMock
+
+import pytest
+from google.cloud.firestore import Client
+
+from ai_health_checker.models.log import LogCreate
+from ai_health_checker.services import log_service
+from tests.conftest import TEST_LOG_ID, TEST_USER_ID, get_logs_ref, make_workday_db_data
+
+
+class TestCreateLog:
+    def test_should_return_log_with_computed_overtime(
+        self, mock_db: MagicMock
+    ) -> None:
+        doc_ref = MagicMock()
+        doc_ref.id = TEST_LOG_ID
+        get_logs_ref(mock_db).document.return_value = doc_ref
+
+        payload = LogCreate(
+            date="2026-06-26",
+            is_holiday=False,
+            mood_morning=3,
+            mood_after_work=2,
+            fatigue=2,
+            work_start="09:00",
+            work_end="19:30",
+        )
+
+        result = log_service.create_log(mock_db, TEST_USER_ID, payload)
+
+        assert result.id == TEST_LOG_ID
+        assert result.user_id == TEST_USER_ID
+        assert result.overtime_minutes == 90
+        assert result.overtime_score == 3
+
+    def test_should_return_holiday_log_without_overtime(
+        self, mock_db: MagicMock
+    ) -> None:
+        doc_ref = MagicMock()
+        doc_ref.id = TEST_LOG_ID
+        get_logs_ref(mock_db).document.return_value = doc_ref
+
+        payload = LogCreate(
+            date="2026-06-26",
+            is_holiday=True,
+            mood_morning=4,
+            fatigue=1,
+        )
+
+        result = log_service.create_log(mock_db, TEST_USER_ID, payload)
+
+        assert result.overtime_minutes is None
+        assert result.overtime_score is None
+
+
+class TestListLogs:
+    def test_should_convert_firestore_documents_to_log_list(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data()
+        mock_doc = MagicMock()
+        mock_doc.to_dict.return_value = db_data
+        get_logs_ref(mock_db).order_by.return_value.stream.return_value = [mock_doc]
+
+        result = log_service.list_logs(mock_db, TEST_USER_ID)
+
+        assert len(result) == 1
+        assert result[0].id == TEST_LOG_ID
+        assert result[0].date == "2026-06-26"
+
+
+class TestUpdateLog:
+    def test_should_raise_when_log_not_found(self, mock_db: MagicMock) -> None:
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = False
+
+        from ai_health_checker.models.log import LogUpdate
+
+        with pytest.raises(ValueError, match=TEST_LOG_ID):
+            log_service.update_log(mock_db, TEST_USER_ID, TEST_LOG_ID, LogUpdate())
+
+    def test_should_merge_partial_update_with_existing_fields(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data(fatigue=2, mood_morning=3)
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = db_data
+
+        from ai_health_checker.models.log import LogUpdate
+
+        result = log_service.update_log(
+            mock_db, TEST_USER_ID, TEST_LOG_ID, LogUpdate(fatigue=5)
+        )
+
+        assert result.fatigue == 5
+        assert result.mood_morning == 3

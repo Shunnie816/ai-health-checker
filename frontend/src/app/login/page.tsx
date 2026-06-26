@@ -1,6 +1,28 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useAuth } from "@/context/AuthContext";
+import { auth } from "@/lib/firebase";
+
 export default function LoginPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/");
+    }
+  }, [user, loading, router]);
+
+  const handleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  };
+
+  if (loading || user) return null;
+
   return (
     <main
       style={{
@@ -15,11 +37,10 @@ export default function LoginPage() {
       <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
         AI Health Checker
       </h1>
-      {/* Google Sign-In は #22 で実装 */}
       <button
         type="button"
-        disabled
-        style={{ padding: "0.75rem 1.5rem", cursor: "not-allowed" }}
+        onClick={handleSignIn}
+        style={{ padding: "0.75rem 1.5rem", cursor: "pointer" }}
       >
         Google でログイン
       </button>

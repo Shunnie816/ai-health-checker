@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -12,7 +13,7 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: "HealthLog",
-  description: "個人のライフログを蓄積・分析するプラットフォーム",
+  description: "毎日の体調・気分を記録するライフログアプリ",
 };
 
 export default function RootLayout({
@@ -21,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={notoSansJP.variable}>
+    <html lang="ja" className={cn(notoSansJP.variable)}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

@@ -4,7 +4,10 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLogForm, LogFormFields } from "@/hooks/useLogForm";
 import { createLog, updateLog, deleteLog, LogRecord } from "@/lib/api";
-import { ColoredSlider } from "@/components/ColoredSlider";
+import { ColoredSlider } from "@/components/ui/colored-slider";
+import { Card } from "@/components/ui/card";
+import { FormRow, Divider } from "@/components/ui/form-row";
+import { Toggle } from "@/components/ui/toggle";
 import { getEmotionColor, getFatigueColor, getOvertimeColor, formatMood } from "@/lib/colors";
 
 type Props = {
@@ -87,41 +90,30 @@ export function LogForm({ existingLog }: Props) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "var(--color-bg)", position: "relative" }}>
+    <div className="relative flex min-h-screen flex-col bg-[var(--color-bg)]">
 
       {/* Sticky header */}
-      <div style={{
-        position: "sticky", top: 0, zIndex: 1,
-        background: "var(--color-bg)", padding: "14px 20px 12px",
-        borderBottom: "1px solid var(--color-border)",
-        display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
-      }}>
+      <div className="sticky top-0 z-10 flex shrink-0 items-center gap-2.5 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-5 pb-3 pt-3.5">
         <button
           type="button"
           onClick={() => router.back()}
-          style={{
-            background: "none", border: "none", cursor: "pointer",
-            color: "var(--color-primary)", fontSize: "15px", fontFamily: "inherit",
-            padding: 0, display: "flex", alignItems: "center", gap: "3px", fontWeight: 500,
-          }}
+          className="flex items-center gap-1 p-0 text-[15px] font-medium text-[var(--color-primary)] focus:outline-none"
+          style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}
         >
           <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
             <path d="M7 1.5L1.5 6.5L7 11.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           戻る
         </button>
-        <span style={{ fontSize: "17px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+        <span className="text-[17px] font-semibold text-[var(--color-text-primary)]">
           {existingLog ? "詳細・編集" : "新規記録"}
         </span>
         {existingLog && (
           <button
             type="button"
             onClick={() => setShowDeleteConfirm(true)}
-            style={{
-              marginLeft: "auto", background: "none", border: "none",
-              cursor: "pointer", color: "var(--color-danger)",
-              fontSize: "14px", fontFamily: "inherit", fontWeight: 500, padding: 0,
-            }}
+            className="ml-auto p-0 text-sm font-medium text-[var(--color-danger)] focus:outline-none"
+            style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}
           >
             削除
           </button>
@@ -129,36 +121,38 @@ export function LogForm({ existingLog }: Props) {
       </div>
 
       {/* Form body */}
-      <form onSubmit={handleSubmit} style={{ padding: "14px 16px 40px", display: "flex", flexDirection: "column", gap: "10px" }}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 px-4 pb-10 pt-3.5">
 
         {error && (
-          <p style={{ fontSize: "14px", color: "var(--color-danger)", padding: "10px 14px", background: "var(--color-danger-subtle)", borderRadius: "10px" }}>
+          <p className="rounded-xl bg-[var(--color-danger-subtle)] px-3.5 py-2.5 text-sm text-[var(--color-danger)]">
             {error}
           </p>
         )}
 
         {/* Date + Holiday */}
-        <Card>
-          <Row label="日付">
+        <Card className="flex flex-col gap-0 p-0 overflow-hidden">
+          <FormRow label="日付">
             <input
               type="date"
               value={fields.date}
               onChange={(e) => setField("date", e.target.value)}
               required
-              style={inputStyle}
+              className="cursor-pointer bg-transparent py-3.5 text-right text-sm text-[var(--color-text-primary)] outline-none"
+              style={{ border: "none", fontFamily: "inherit" }}
             />
-          </Row>
+          </FormRow>
           <Divider />
-          <Row label="休日">
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">休日</span>
             <Toggle checked={fields.is_holiday} onChange={(v) => setField("is_holiday", v)} />
-          </Row>
+          </div>
         </Card>
 
         {/* Morning mood */}
         <Card>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <span style={labelStyle}>朝の気分</span>
-            <span style={{ fontSize: "22px", fontWeight: 600, color: moodColor, letterSpacing: "-0.5px" }}>
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">朝の気分</span>
+            <span className="text-[22px] font-semibold tracking-tight" style={{ color: moodColor }}>
               {formatMood(fields.mood_morning)}
             </span>
           </div>
@@ -168,39 +162,37 @@ export function LogForm({ existingLog }: Props) {
         {/* Work fields */}
         {!fields.is_holiday && (
           <>
-            {/* Work time + overtime */}
-            <Card>
-              <Row label="開始">
-                <input type="time" value={fields.work_start} onChange={(e) => setField("work_start", e.target.value)} required={!fields.is_holiday} style={inputStyle} />
-              </Row>
+            <Card className="flex flex-col gap-0 p-0 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <span className="text-sm font-medium text-[var(--color-text-secondary)]">開始</span>
+                <input type="time" value={fields.work_start} onChange={(e) => setField("work_start", e.target.value)} required={!fields.is_holiday} className="cursor-pointer bg-transparent text-right text-sm text-[var(--color-text-primary)] outline-none" style={{ border: "none", fontFamily: "inherit" }} />
+              </div>
               <Divider />
-              <Row label="終了">
-                <input type="time" value={fields.work_end} onChange={(e) => setField("work_end", e.target.value)} required={!fields.is_holiday} style={inputStyle} />
-              </Row>
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <span className="text-sm font-medium text-[var(--color-text-secondary)]">終了</span>
+                <input type="time" value={fields.work_end} onChange={(e) => setField("work_end", e.target.value)} required={!fields.is_holiday} className="cursor-pointer bg-transparent text-right text-sm text-[var(--color-text-primary)] outline-none" style={{ border: "none", fontFamily: "inherit" }} />
+              </div>
               <Divider />
-              <Row label="残業スコア">
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "19px", fontWeight: 600, color: overtimeColor, letterSpacing: "-0.4px" }}>
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <span className="text-sm font-medium text-[var(--color-text-secondary)]">残業スコア</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[19px] font-semibold tracking-tight" style={{ color: overtimeColor }}>
                     {overtimePreview ? overtimePreview.score : "—"}
                   </span>
-                  <span style={{
-                    fontSize: "10px", color: "var(--color-text-muted)",
-                    background: "var(--color-surface-2)", padding: "2px 7px",
-                    borderRadius: "999px", fontWeight: 500,
-                  }}>
+                  <span className="rounded-full bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-text-muted)]">
                     自動
                   </span>
                 </div>
-              </Row>
+              </div>
             </Card>
           </>
         )}
 
         {/* Fatigue */}
         <Card>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <span style={labelStyle}>疲れ度</span>
-            <span style={{ fontSize: "22px", fontWeight: 600, color: fatigueColor }}>
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">疲れ度</span>
+            <span className="text-[22px] font-semibold" style={{ color: fatigueColor }}>
               {fields.fatigue}
             </span>
           </div>
@@ -211,9 +203,9 @@ export function LogForm({ existingLog }: Props) {
         {!fields.is_holiday && (
           <>
             <Card>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                <span style={labelStyle}>仕事終わりの気分</span>
-                <span style={{ fontSize: "22px", fontWeight: 600, color: wemColor, letterSpacing: "-0.5px" }}>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--color-text-secondary)]">仕事終わりの気分</span>
+                <span className="text-[22px] font-semibold tracking-tight" style={{ color: wemColor }}>
                   {formatMood(fields.mood_after_work ?? 0)}
                 </span>
               </div>
@@ -221,32 +213,35 @@ export function LogForm({ existingLog }: Props) {
             </Card>
 
             <Card>
-              <label style={{ ...labelStyle, display: "block", marginBottom: "10px" }}>仕事内容</label>
+              <label className="mb-2.5 block text-sm font-medium text-[var(--color-text-secondary)]">仕事内容</label>
               <textarea
                 value={fields.work_content}
                 onChange={(e) => setField("work_content", e.target.value)}
                 placeholder="今日の業務内容…"
-                style={textareaStyle}
+                className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
+                style={{ border: "none", fontFamily: "inherit" }}
               />
             </Card>
           </>
         )}
 
         {/* Gym */}
-        <Card>
-          <Row label="ジムに行った">
+        <Card className="flex flex-col gap-0 p-0 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <span className="text-sm font-medium text-[var(--color-text-secondary)]">ジムに行った</span>
             <Toggle checked={fields.gym} onChange={(v) => setField("gym", v)} />
-          </Row>
+          </div>
         </Card>
 
         {/* Comment */}
         <Card>
-          <label style={{ ...labelStyle, display: "block", marginBottom: "10px" }}>コメント</label>
+          <label className="mb-2.5 block text-sm font-medium text-[var(--color-text-secondary)]">コメント</label>
           <textarea
             value={fields.comment}
             onChange={(e) => setField("comment", e.target.value)}
             placeholder="今日のメモ…"
-            style={textareaStyle}
+            className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
+            style={{ border: "none", fontFamily: "inherit" }}
           />
         </Card>
 
@@ -254,13 +249,11 @@ export function LogForm({ existingLog }: Props) {
         <button
           type="submit"
           disabled={submitting}
+          className="mt-1 w-full rounded-xl py-[15px] text-base font-semibold text-white transition-opacity disabled:opacity-50"
           style={{
-            width: "100%", padding: "15px",
-            background: submitting ? "var(--color-border)" : "var(--color-primary)",
-            color: "white", border: "none", borderRadius: "12px",
-            fontSize: "16px", fontWeight: 600, fontFamily: "inherit",
-            cursor: submitting ? "not-allowed" : "pointer", letterSpacing: "0.1px",
-            marginTop: "4px",
+            background: "var(--color-primary)",
+            border: "none", cursor: submitting ? "not-allowed" : "pointer",
+            fontFamily: "inherit", letterSpacing: "0.1px",
           }}
         >
           {submitting ? "保存中..." : existingLog ? "保存する" : "記録する"}
@@ -269,43 +262,29 @@ export function LogForm({ existingLog }: Props) {
 
       {/* Delete confirmation bottom sheet */}
       {showDeleteConfirm && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.42)",
-          display: "flex", alignItems: "flex-end", zIndex: 20,
-        }}>
-          <div style={{
-            width: "100%", background: "var(--color-bg)",
-            borderRadius: "20px 20px 0 0", padding: "12px 20px 40px",
-          }}>
-            <div style={{ width: "36px", height: "4px", background: "var(--color-border)", borderRadius: "2px", margin: "0 auto 20px" }} />
-            <h2 style={{ fontSize: "18px", fontWeight: 600, color: "var(--color-text-primary)", marginBottom: "6px" }}>
+        <div className="fixed inset-0 z-20 flex items-end" style={{ background: "rgba(0,0,0,0.42)" }}>
+          <div className="w-full rounded-t-[20px] bg-[var(--color-bg)] px-5 pb-10 pt-3">
+            <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-[var(--color-border)]" />
+            <h2 className="mb-1.5 text-lg font-semibold text-[var(--color-text-primary)]">
               記録を削除しますか？
             </h2>
-            <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginBottom: "24px", lineHeight: 1.55 }}>
+            <p className="mb-6 text-sm leading-relaxed text-[var(--color-text-muted)]">
               この操作は取り消せません。
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className="flex flex-col gap-2.5">
               <button
                 type="button"
                 onClick={handleDelete}
-                style={{
-                  width: "100%", padding: "15px",
-                  background: "var(--color-danger)", color: "white",
-                  border: "none", borderRadius: "12px",
-                  fontSize: "16px", fontWeight: 600, fontFamily: "inherit", cursor: "pointer",
-                }}
+                className="w-full rounded-xl py-[15px] text-base font-semibold text-white"
+                style={{ background: "var(--color-danger)", border: "none", cursor: "pointer", fontFamily: "inherit" }}
               >
                 削除する
               </button>
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
-                style={{
-                  width: "100%", padding: "15px",
-                  background: "var(--color-surface-1)", color: "var(--color-text-primary)",
-                  border: "1px solid var(--color-border)", borderRadius: "12px",
-                  fontSize: "16px", fontWeight: 500, fontFamily: "inherit", cursor: "pointer",
-                }}
+                className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] py-[15px] text-base font-medium text-[var(--color-text-primary)]"
+                style={{ cursor: "pointer", fontFamily: "inherit" }}
               >
                 キャンセル
               </button>
@@ -316,86 +295,3 @@ export function LogForm({ existingLog }: Props) {
     </div>
   );
 }
-
-/* ── Sub-components ──────────────────────────────────── */
-
-function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      background: "var(--color-surface-1)", borderRadius: "12px",
-      border: "1px solid var(--color-border)", padding: "16px",
-    }}>
-      {children}
-    </div>
-  );
-}
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <span style={labelStyle}>{label}</span>
-      {children}
-    </div>
-  );
-}
-
-function Divider() {
-  return <div style={{ height: "1px", background: "var(--color-border)", margin: "0 -16px", marginTop: "14px", marginBottom: "14px" }} />;
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <div
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      style={{
-        width: "48px", height: "28px", borderRadius: "999px",
-        background: checked ? "var(--color-primary)" : "var(--color-border)",
-        position: "relative", cursor: "pointer", flexShrink: 0,
-        transition: "background 0.2s",
-      }}
-    >
-      <div style={{
-        position: "absolute", top: "3px",
-        left: checked ? "23px" : "3px",
-        width: "22px", height: "22px",
-        background: "white", borderRadius: "50%",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-        transition: "left 0.18s",
-      }} />
-    </div>
-  );
-}
-
-/* ── Shared styles ───────────────────────────────────── */
-
-const labelStyle: React.CSSProperties = {
-  fontSize: "14px",
-  color: "var(--color-text-secondary)",
-  fontWeight: 500,
-};
-
-const inputStyle: React.CSSProperties = {
-  fontSize: "14px",
-  color: "var(--color-text-primary)",
-  border: "none",
-  background: "transparent",
-  fontFamily: "inherit",
-  cursor: "pointer",
-  textAlign: "right",
-  outline: "none",
-};
-
-const textareaStyle: React.CSSProperties = {
-  width: "100%",
-  fontSize: "14px",
-  color: "var(--color-text-primary)",
-  border: "none",
-  background: "transparent",
-  fontFamily: "inherit",
-  resize: "none",
-  outline: "none",
-  minHeight: "72px",
-  lineHeight: 1.65,
-};

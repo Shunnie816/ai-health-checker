@@ -24,43 +24,27 @@ export default function LoginPage() {
   if (loading || user) return null;
 
   return (
-    <main style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      minHeight: "100vh", gap: "8px",
-      background: "var(--color-bg)", padding: "24px",
-    }}>
-      <div style={{
-        width: "48px", height: "48px", borderRadius: "14px",
-        background: "var(--color-primary)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        marginBottom: "8px",
-      }}>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-[var(--color-bg)] px-6">
+      {/* App icon */}
+      <div
+        className="mb-2 flex h-12 w-12 items-center justify-center rounded-[14px]"
+        style={{ background: "var(--color-primary)" }}
+      >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="white" />
         </svg>
       </div>
 
-      <h1 style={{ fontSize: "24px", fontWeight: 600, color: "var(--color-text-primary)", letterSpacing: "-0.5px" }}>
+      <h1 className="-tracking-[0.5px] text-2xl font-semibold text-[var(--color-text-primary)]">
         HealthLog
       </h1>
-      <p style={{ fontSize: "14px", color: "var(--color-text-muted)", marginBottom: "24px" }}>
-        毎日の記録を続けよう
-      </p>
+      <p className="mb-6 text-sm text-[var(--color-text-muted)]">毎日の記録を続けよう</p>
 
       <button
         type="button"
         onClick={handleSignIn}
-        style={{
-          display: "flex", alignItems: "center", gap: "10px",
-          padding: "13px 24px",
-          background: "var(--color-surface-1)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "12px",
-          fontSize: "15px", fontWeight: 500, fontFamily: "inherit",
-          color: "var(--color-text-primary)", cursor: "pointer",
-          boxShadow: "var(--shadow-card)",
-        }}
+        className="flex items-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] px-6 py-3.5 text-[15px] font-medium text-[var(--color-text-primary)] shadow-sm transition-opacity hover:opacity-80"
+        style={{ fontFamily: "inherit", cursor: "pointer" }}
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
           <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />

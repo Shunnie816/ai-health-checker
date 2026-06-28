@@ -38,6 +38,13 @@ def list_logs(
     return [LogInDB(**doc.to_dict()) for doc in query.stream()]
 
 
+def delete_log(db: Client, user_id: str, log_id: str) -> None:
+    doc_ref = _logs_ref(db, user_id).document(log_id)
+    if not doc_ref.get().exists:
+        raise ValueError(f"Log {log_id} not found")
+    doc_ref.delete()
+
+
 def update_log(
     db: Client, user_id: str, log_id: str, payload: LogUpdate
 ) -> LogInDB:

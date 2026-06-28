@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from google.cloud.firestore import Client
 
 from ai_health_checker.dependencies import get_current_user_id, get_db
@@ -25,6 +25,19 @@ async def list_logs(
     db: Client = Depends(get_db),
 ) -> list[LogInDB]:
     return log_service.list_logs(db, user_id, start_date, end_date)
+
+
+@router.delete("/{log_id}", status_code=204)
+async def delete_log(
+    log_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Client = Depends(get_db),
+) -> Response:
+    try:
+        log_service.delete_log(db, user_id, log_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    return Response(status_code=204)
 
 
 @router.put("/{log_id}", response_model=LogInDB)

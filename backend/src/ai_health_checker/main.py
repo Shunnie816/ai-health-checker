@@ -1,9 +1,12 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from ai_health_checker.routers import analysis, logs
+
+load_dotenv()
 
 app = FastAPI(title="AI Health Checker API")
 

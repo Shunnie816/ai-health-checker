@@ -1,3 +1,5 @@
+import os
+
 from fastapi import Header, HTTPException
 from firebase_admin import auth
 from google.cloud.firestore import Client
@@ -16,6 +18,23 @@ async def get_current_user_id(authorization: str = Header(...)) -> str:
         return uid
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid or expired token") from e
+
+
+async def verify_scheduler_key(
+    x_scheduler_key: str | None = Header(default=None),
+) -> None:
+    expected = os.getenv("SCHEDULER_API_KEY")
+    if not expected or x_scheduler_key != expected:
+        raise HTTPException(status_code=401, detail="Invalid scheduler key")
+
+
+def get_user_email(user_id: str) -> str | None:
+    _initialize()
+    try:
+        email: str | None = auth.get_user(user_id).email
+        return email
+    except Exception:
+        return None
 
 
 def get_db() -> Client:

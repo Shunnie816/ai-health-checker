@@ -13,7 +13,7 @@
   └── Email 通知                      ← リマインダー・レポート配信
           ↑ 定期トリガー
 [Cloud Scheduler]
-  定期 AI 分析
+  定期 AI 分析 / 毎日の入力リマインダー
 
 [Firebase Auth]   ← 認証（全ユーザー共通）
 [Firestore]       ← ライフログデータ・分析レポート
@@ -78,6 +78,22 @@ Next.js → FastAPI → Firestore → 一覧 / グラフ表示
 ユーザー → GET /analysis/reports（Firebase Auth token）
   → analysis_service.list_reports → Firestore: users/uid/reports（created_at 降順）→ レスポンス
 ```
+
+### 入力リマインダー（定期実行のみ）
+
+実装: `backend/src/ai_health_checker/services/reminder_service.py`
+
+```
+Cloud Scheduler → POST /reminders/run（X-Scheduler-Key、#12 と共通の verify_scheduler_key）
+  → reminder_service.run_reminders
+  → users コレクションを全走査 → 各ユーザーについて log_service.list_logs で
+     JST 基準の当日ログ有無を確認
+  → 当日ログがなく、かつメールアドレスが取得できるユーザーにのみ
+     email_service.send_reminder_email でリマインダーメールを送信
+```
+
+> Cloud Scheduler ジョブ自体（`gcloud scheduler jobs create ...`）は本リポジトリの管理外で、
+> デプロイ済みの Cloud Run URL に対して手動で作成する。
 
 ---
 

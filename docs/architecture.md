@@ -33,10 +33,50 @@
 Cloud Scheduler / 手動 → FastAPI → Firestore（ログ取得）→ Dify API → Firestore（レポート保存）→ Email 送信
 ```
 
+#### 詳細フロー（実装: `backend/src/ai_health_checker/services/analysis_service.py`）
+
+`run_analysis_for_user()` が分析実行の中心ロジック。手動実行（`POST /analysis/run`）と
+Cloud Scheduler 定期実行（`POST /analysis/scheduler-run` → 全ユーザーをループして
+`run_analysis_for_user()` を呼ぶ `run_analysis_for_all_users()`）の両方から呼ばれる、
+共通の1本のフロー。
+
+```mermaid
+flowchart TD
+    subgraph trigger [トリガー]
+        user["ユーザー"] -->|"Firebase Auth token"| run["POST /analysis/run<br/>start_date, end_date は任意"]
+        scheduler["Cloud Scheduler"] -->|"X-Scheduler-Key"| batch["POST /analysis/scheduler-run"]
+    end
+
+    run --> authUser["get_current_user_id<br/>Firebase Auth token 検証"]
+    batch --> authScheduler["verify_scheduler_key<br/>共有シークレット照合（不一致は401）"]
+
+    authUser --> single["run_analysis_for_user(user_id)"]
+    authScheduler --> all["run_analysis_for_all_users<br/>Firestore usersコレクションを全走査"]
+    all --> single
+
+    single --> logs["log_service.list_logs<br/>Firestore: users/uid/logs<br/>期間未指定時は直近30日"]
+    logs -->|ログ0件| skip["ValueError<br/>手動実行:404 / 定期実行:該当ユーザーをスキップ"]
+    logs -->|ログあり| prompt["_build_prompt<br/>ログをテキスト要約に変換"]
+    prompt --> dify["dify_service.generate_analysis_report<br/>Dify /v1/chat-messages"]
+    dify --> save["Firestoreに保存<br/>users/uid/reports/report_id"]
+    save --> lookup["get_user_email<br/>Firebase Admin Auth"]
+    lookup -->|メールあり| send["email_service.send_report_email<br/>SMTP送信（SMTP_HOST未設定時はスキップ）"]
+    lookup -->|メールなし| noSend["送信スキップ"]
+    send --> res["レポートを返却（201）"]
+    noSend --> res
+```
+
 ### 閲覧
 
 ```
 Next.js → FastAPI → Firestore → 一覧 / グラフ表示
+```
+
+#### レポート一覧取得
+
+```
+ユーザー → GET /analysis/reports（Firebase Auth token）
+  → analysis_service.list_reports → Firestore: users/uid/reports（created_at 降順）→ レスポンス
 ```
 
 ---

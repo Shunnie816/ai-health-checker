@@ -53,3 +53,17 @@ def client(mock_db: MagicMock) -> TestClient:
 def get_logs_ref(mock_db: MagicMock) -> MagicMock:
     """mock_db から logs コレクション参照を返すヘルパー"""
     return mock_db.collection.return_value.document.return_value.collection.return_value
+
+
+def get_reports_ref(mock_db: MagicMock) -> MagicMock:
+    """mock_db から reports コレクション参照を返すヘルパー"""
+    return mock_db.collection.return_value.document.return_value.collection.return_value
+
+
+def stub_logs_in_period(mock_db: MagicMock, docs: list) -> None:  # type: ignore[type-arg]
+    """start_date/end_date 両方を指定した list_logs 呼び出し（.where().where()）の
+    stream() 戻り値を設定するヘルパー"""
+    logs_ref = get_logs_ref(mock_db)
+    logs_ref.order_by.return_value.where.return_value.where.return_value.stream.return_value = (
+        docs
+    )

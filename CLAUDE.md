@@ -90,8 +90,15 @@ make clean       # venv 削除
 `.env` ファイルに以下を設定：
 
 ```
-DATASET_API_KEY=  # Dify Dataset API キー
-DATASET_ID=       # Dify Dataset ID
+DATASET_API_KEY=    # Dify Dataset API キー（PoC ETL のドキュメント登録用）
+DATASET_ID=         # Dify Dataset ID
+APP_API_KEY=        # Dify Chat App API キー（AI 分析レポート生成用）
+SCHEDULER_API_KEY=  # Cloud Scheduler トリガー認証用の共有シークレット
+SMTP_HOST=          # レポート完了メール送信用（未設定の場合は送信をスキップ）
+SMTP_PORT=          # 未設定時は 587
+SMTP_USER=
+SMTP_PASSWORD=
+EMAIL_FROM=
 ```
 
 ---

@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLogForm, LogFormFields } from "@/hooks/useLogForm";
+import { useLogForm, LogFormValues } from "@/hooks/useLogForm";
 import { createLog, updateLog, deleteLog, LogRecord } from "@/lib/api";
 import { ColoredSlider } from "@/components/ui/colored-slider";
 import { Card } from "@/components/ui/card";
@@ -21,10 +21,10 @@ function toNullableStr(v: string): string | null {
 export function LogForm({ existingLog }: Props) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const initial: Partial<LogFormFields> | undefined = existingLog
+  const initial: Partial<LogFormValues> | undefined = existingLog
     ? {
         date: existingLog.date,
         is_holiday: existingLog.is_holiday,
@@ -39,29 +39,29 @@ export function LogForm({ existingLog }: Props) {
       }
     : undefined;
 
-  const { fields, setField, overtimePreview } = useLogForm(initial);
+  const { form, fields, setField, overtimePreview } = useLogForm(initial);
+  const { formState: { errors } } = form;
 
   const moodColor = getEmotionColor(fields.mood_morning);
   const wemColor = getEmotionColor(fields.mood_after_work ?? 0);
   const fatigueColor = getFatigueColor(fields.fatigue);
   const overtimeColor = getOvertimeColor(overtimePreview?.score ?? null);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function onValid(data: LogFormValues) {
     setSubmitting(true);
-    setError(null);
+    setApiError(null);
     try {
       const payload = {
-        date: fields.date,
-        is_holiday: fields.is_holiday,
-        mood_morning: fields.mood_morning,
-        mood_after_work: fields.is_holiday ? null : (fields.mood_after_work ?? 0),
-        fatigue: fields.fatigue,
-        comment: toNullableStr(fields.comment),
-        work_content: fields.is_holiday ? null : toNullableStr(fields.work_content),
-        work_start: fields.is_holiday ? null : toNullableStr(fields.work_start),
-        work_end: fields.is_holiday ? null : toNullableStr(fields.work_end),
-        gym: fields.gym,
+        date: data.date,
+        is_holiday: data.is_holiday,
+        mood_morning: data.mood_morning,
+        mood_after_work: data.is_holiday ? null : (data.mood_after_work ?? 0),
+        fatigue: data.fatigue,
+        comment: toNullableStr(data.comment),
+        work_content: data.is_holiday ? null : toNullableStr(data.work_content),
+        work_start: data.is_holiday ? null : toNullableStr(data.work_start),
+        work_end: data.is_holiday ? null : toNullableStr(data.work_end),
+        gym: data.gym,
       };
       if (existingLog) {
         await updateLog(existingLog.id, payload);
@@ -71,7 +71,7 @@ export function LogForm({ existingLog }: Props) {
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "エラーが発生しました");
+      setApiError(err instanceof Error ? err.message : "エラーが発生しました");
     } finally {
       setSubmitting(false);
     }
@@ -84,7 +84,7 @@ export function LogForm({ existingLog }: Props) {
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "削除に失敗しました");
+      setApiError(err instanceof Error ? err.message : "削除に失敗しました");
       setShowDeleteConfirm(false);
     }
   }
@@ -121,11 +121,16 @@ export function LogForm({ existingLog }: Props) {
       </div>
 
       {/* Form body */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 px-4 pb-10 pt-3.5">
+      <form onSubmit={form.handleSubmit(onValid)} className="flex flex-col gap-2.5 px-4 pb-10 pt-3.5">
 
-        {error && (
+        {apiError && (
           <p className="rounded-xl bg-[var(--color-danger-subtle)] px-3.5 py-2.5 text-sm text-[var(--color-danger)]">
-            {error}
+            {apiError}
+          </p>
+        )}
+        {Object.keys(errors).length > 0 && (
+          <p className="rounded-xl bg-[var(--color-danger-subtle)] px-3.5 py-2.5 text-sm text-[var(--color-danger)]">
+            {Object.values(errors)[0]?.message ?? "入力内容を確認してください"}
           </p>
         )}
 

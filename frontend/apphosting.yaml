@@ -36,3 +36,15 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  # バックエンド（Cloud Run）のURL。NEXT_PUBLIC_ はビルド時にインライン化されるため BUILD 必須
+  - variable: NEXT_PUBLIC_BACKEND_URL
+    value: https://ai-health-checker-api-yoieoj4i7a-an.a.run.app
+    availability:
+      - BUILD
+      - RUNTIME
+  # 本番では Auth エミュレータに接続しない（未設定でも false 扱いだが明示する）
+  - variable: NEXT_PUBLIC_USE_FIREBASE_EMULATOR
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME

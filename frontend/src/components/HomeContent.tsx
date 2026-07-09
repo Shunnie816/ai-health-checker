@@ -31,6 +31,12 @@ export function HomeContent() {
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/graph"
+            className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
+          >
+            グラフ
+          </Link>
+          <Link
             href="/reports"
             className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white"
             style={{ background: "var(--color-primary)" }}

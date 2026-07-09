@@ -15,8 +15,10 @@ const app = isNew ? initializeApp(firebaseConfig) : getApps()[0];
 
 export const auth = getAuth(app);
 
-// dev 環境かつ初回初期化時のみエミュレータに接続
-if (isNew && process.env.NODE_ENV === "development") {
+// NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true のときのみエミュレータに接続する。
+// NODE_ENV 判定だと npm run dev から実 Firebase Auth（stg）に接続する手段がなくなるため、
+// 明示的なフラグで切り替える。
+if (isNew && process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true") {
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
 }
 

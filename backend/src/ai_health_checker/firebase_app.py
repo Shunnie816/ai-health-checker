@@ -17,14 +17,17 @@ class _EmulatorCredentials(credentials.Base):  # type: ignore[misc]
 def _initialize() -> None:
     if firebase_admin._apps:
         return
-    key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    if key_path:
-        firebase_admin.initialize_app(credentials.Certificate(key_path))
-    elif os.getenv("FIRESTORE_EMULATOR_HOST"):
+    # エミュレータ指定は明示的な切り替え操作なので、
+    # GOOGLE_APPLICATION_CREDENTIALS の有無より優先する（実 stg への誤接続防止）
+    if os.getenv("FIRESTORE_EMULATOR_HOST"):
         firebase_admin.initialize_app(
             _EmulatorCredentials(),
             options={"projectId": "ai-health-checker-stg"},
         )
+        return
+    key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if key_path:
+        firebase_admin.initialize_app(credentials.Certificate(key_path))
     else:
         # Cloud Run: Application Default Credentials を使用
         firebase_admin.initialize_app()

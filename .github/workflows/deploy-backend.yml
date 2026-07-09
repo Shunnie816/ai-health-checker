@@ -43,5 +43,5 @@ jobs:
           image: ${{ env.IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
           flags: >-
-            --port=8080 --allow-unauthenticated
+            --port=8080 --allow-unauthenticated --clear-env-vars
             --set-secrets=APP_API_KEY=APP_API_KEY:latest,SCHEDULER_API_KEY=SCHEDULER_API_KEY:latest,SMTP_HOST=SMTP_HOST:latest,SMTP_PORT=SMTP_PORT:latest,SMTP_USER=SMTP_USER:latest,SMTP_PASSWORD=SMTP_PASSWORD:latest,EMAIL_FROM=EMAIL_FROM:latest

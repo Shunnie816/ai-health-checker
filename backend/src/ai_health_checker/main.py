@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from ai_health_checker.routers import analysis, logs
+from ai_health_checker.routers import analysis, logs, reminders
 
 load_dotenv()
 
@@ -25,6 +25,7 @@ app.add_middleware(
 
 app.include_router(logs.router)
 app.include_router(analysis.router)
+app.include_router(reminders.router)
 
 
 @app.get("/health")

@@ -75,3 +75,38 @@ class TestSendReportEmail:
         email_service.send_report_email(TEST_EMAIL, make_report())
 
         mock_server.login.assert_not_called()
+
+
+class TestSendReminderEmail:
+    def test_should_skip_sending_when_smtp_host_not_configured(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.delenv("SMTP_HOST", raising=False)
+        mock_smtp_class = MagicMock()
+        monkeypatch.setattr(email_service.smtplib, "SMTP", mock_smtp_class)
+
+        email_service.send_reminder_email(TEST_EMAIL, "2026-07-08")
+
+        mock_smtp_class.assert_not_called()
+
+    def test_should_send_email_with_reminder_content_when_smtp_configured(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("SMTP_HOST", "smtp.example.com")
+        monkeypatch.setenv("SMTP_PORT", "587")
+        monkeypatch.setenv("EMAIL_FROM", "noreply@example.com")
+        monkeypatch.delenv("SMTP_USER", raising=False)
+        monkeypatch.delenv("SMTP_PASSWORD", raising=False)
+
+        mock_server = MagicMock()
+        mock_smtp_class = MagicMock()
+        mock_smtp_class.return_value.__enter__.return_value = mock_server
+        monkeypatch.setattr(email_service.smtplib, "SMTP", mock_smtp_class)
+
+        email_service.send_reminder_email(TEST_EMAIL, "2026-07-08")
+
+        mock_smtp_class.assert_called_once_with("smtp.example.com", 587)
+        sent_message = mock_server.send_message.call_args[0][0]
+        assert sent_message["To"] == TEST_EMAIL
+        assert "2026-07-08" in sent_message["Subject"]
+        assert "2026-07-08" in sent_message.get_content()

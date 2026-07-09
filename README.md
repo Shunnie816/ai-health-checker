@@ -104,6 +104,17 @@ make typecheck   # mypy 型チェック
 make test        # pytest 実行
 ```
 
+## デプロイ（staging）
+
+| 対象 | ホスティング | URL | トリガー |
+|---|---|---|---|
+| フロントエンド | Firebase App Hosting（asia-east1） | https://ai-health-checker--ai-health-checker-stg.asia-east1.hosted.app | main への push（`frontend/` を含むコミットで自動ロールアウト） |
+| バックエンド | Cloud Run（asia-northeast1） | https://ai-health-checker-api-yoieoj4i7a-an.a.run.app | main への push（`backend/**`）or `deploy-backend.yml` の手動実行 |
+| Firestore rules | Firebase | — | main への push（`deploy-staging.yml`） |
+
+- フロントの環境変数は `frontend/apphosting.yaml`（Secret Manager 参照）で管理
+- バックエンドのシークレットは GCP Secret Manager から `--set-secrets` で注入（`deploy-backend.yml`）
+
 ## ドキュメント
 
 - [要件定義](docs/requirements.md)

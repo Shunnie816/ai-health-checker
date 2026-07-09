@@ -1,5 +1,9 @@
 import { getIdToken } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { AnalysisReport, NoLogsError } from "@/lib/reports";
+
+export type { AnalysisReport };
+export { NoLogsError };
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -73,5 +77,18 @@ export async function deleteLog(id: string): Promise<void> {
 export async function listLogs(): Promise<LogRecord[]> {
   const res = await fetchWithAuth("/logs");
   if (!res.ok) throw new Error(`Failed to list logs: ${res.status}`);
+  return res.json();
+}
+
+export async function listReports(): Promise<AnalysisReport[]> {
+  const res = await fetchWithAuth("/analysis/reports");
+  if (!res.ok) throw new Error(`Failed to list reports: ${res.status}`);
+  return res.json();
+}
+
+export async function runAnalysis(): Promise<AnalysisReport> {
+  const res = await fetchWithAuth("/analysis/run", { method: "POST" });
+  if (res.status === 404) throw new NoLogsError();
+  if (!res.ok) throw new Error(`Failed to run analysis: ${res.status}`);
   return res.json();
 }

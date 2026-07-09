@@ -29,13 +29,22 @@ export function HomeContent() {
           </h1>
           <p className="mt-0.5 text-[13px] text-[var(--color-text-muted)]">直近の記録</p>
         </div>
-        <button
-          type="button"
-          onClick={() => signOut(auth)}
-          className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
-        >
-          ログアウト
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/reports"
+            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white"
+            style={{ background: "var(--color-primary)" }}
+          >
+            AI分析
+          </Link>
+          <button
+            type="button"
+            onClick={() => signOut(auth)}
+            className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
+          >
+            ログアウト
+          </button>
+        </div>
       </div>
 
       {/* Log list */}

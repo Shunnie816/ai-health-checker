@@ -14,11 +14,11 @@ import {
   YAxis,
 } from "recharts";
 import { listLogs } from "@/lib/api";
-import { PERIOD_OPTIONS, TrendPoint } from "@/lib/trend";
-import { TrendApi, useTrend } from "@/hooks/useTrend";
+import { PERIOD_OPTIONS, GraphPoint } from "@/lib/graph";
+import { GraphApi, useGraph } from "@/hooks/useGraph";
 
-// 参照を安定させるためモジュールレベルで生成する（useTrend の effect 再実行防止）
-const trendApi: TrendApi = { listLogs };
+// 参照を安定させるためモジュールレベルで生成する（useGraph の effect 再実行防止）
+const graphApi: GraphApi = { listLogs };
 
 const tooltipStyle = {
   background: "var(--color-surface-1)",
@@ -28,8 +28,8 @@ const tooltipStyle = {
   color: "var(--color-text-primary)",
 };
 
-export function TrendContent() {
-  const { points, period, setPeriod, loading, error } = useTrend(trendApi);
+export function GraphContent() {
+  const { points, period, setPeriod, loading, error } = useGraph(graphApi);
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
@@ -129,7 +129,7 @@ const commonAxisProps = {
   tickLine: false,
 } as const;
 
-function MoodChart({ points }: { points: TrendPoint[] }) {
+function MoodChart({ points }: { points: GraphPoint[] }) {
   return (
     <ChartCard
       title="気分"
@@ -169,7 +169,7 @@ function MoodChart({ points }: { points: TrendPoint[] }) {
   );
 }
 
-function FatigueChart({ points }: { points: TrendPoint[] }) {
+function FatigueChart({ points }: { points: GraphPoint[] }) {
   return (
     <ChartCard title="疲れ度">
       <ResponsiveContainer width="100%" height="100%">
@@ -192,7 +192,7 @@ function FatigueChart({ points }: { points: TrendPoint[] }) {
   );
 }
 
-function OvertimeChart({ points }: { points: TrendPoint[] }) {
+function OvertimeChart({ points }: { points: GraphPoint[] }) {
   return (
     <ChartCard title="残業スコア">
       <ResponsiveContainer width="100%" height="100%">

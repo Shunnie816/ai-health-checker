@@ -1,10 +1,10 @@
 import { AuthGuard } from "@/components/AuthGuard";
-import { TrendContent } from "@/components/TrendContent";
+import { GraphContent } from "@/components/GraphContent";
 
 export default function GraphPage() {
   return (
     <AuthGuard>
-      <TrendContent />
+      <GraphContent />
     </AuthGuard>
   );
 }

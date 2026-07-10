@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLogForm, LogFormValues } from "@/hooks/useLogForm";
-import { createLog, updateLog, deleteLog, LogRecord } from "@/lib/api";
+import {
+  DuplicateGuardApi,
+  useDuplicateDateGuard,
+} from "@/hooks/useDuplicateDateGuard";
+import { createLog, updateLog, deleteLog, listLogs, DuplicateDateError, LogRecord } from "@/lib/api";
 import { ColoredSlider } from "@/components/ui/colored-slider";
 import { Card } from "@/components/ui/card";
 import { FormRow, Divider } from "@/components/ui/form-row";
@@ -17,6 +21,9 @@ type Props = {
 function toNullableStr(v: string): string | null {
   return v.trim() === "" ? null : v.trim();
 }
+
+// 参照を安定させるためモジュールレベルで生成する（useDuplicateDateGuard の effect 再実行防止）
+const duplicateGuardApi: DuplicateGuardApi = { listLogs };
 
 export function LogForm({ existingLog }: Props) {
   const router = useRouter();
@@ -41,6 +48,13 @@ export function LogForm({ existingLog }: Props) {
 
   const { form, fields, setField, overtimePreview } = useLogForm(initial);
   const { formState: { errors } } = form;
+
+  // 新規記録時のみ、選択中の日付に既存ログがあれば編集画面へ誘導する
+  const existingLogIdForDate = useDuplicateDateGuard(
+    fields.date,
+    !existingLog,
+    duplicateGuardApi
+  );
 
   const moodColor = getEmotionColor(fields.mood_morning);
   const wemColor = getEmotionColor(fields.mood_after_work ?? 0);
@@ -71,7 +85,11 @@ export function LogForm({ existingLog }: Props) {
       router.push("/");
       router.refresh();
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : "エラーが発生しました");
+      if (err instanceof DuplicateDateError) {
+        setApiError("この日付は記録済みです。既存の記録を編集してください。");
+      } else {
+        setApiError(err instanceof Error ? err.message : "エラーが発生しました");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -132,6 +150,21 @@ export function LogForm({ existingLog }: Props) {
           <p className="rounded-xl bg-[var(--color-danger-subtle)] px-3.5 py-2.5 text-sm text-[var(--color-danger)]">
             {Object.values(errors)[0]?.message ?? "入力内容を確認してください"}
           </p>
+        )}
+        {existingLogIdForDate && (
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-[var(--color-primary-subtle)] px-3.5 py-2.5">
+            <p className="text-sm text-[var(--color-text-secondary)]">
+              この日付は記録済みです
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push(`/logs/${existingLogIdForDate}/edit`)}
+              className="shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white"
+              style={{ background: "var(--color-primary)", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+            >
+              編集画面を開く
+            </button>
+          </div>
         )}
 
         {/* Date + Holiday */}
@@ -253,11 +286,12 @@ export function LogForm({ existingLog }: Props) {
         {/* Submit */}
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || !!existingLogIdForDate}
           className="mt-1 w-full rounded-xl py-[15px] text-base font-semibold text-white transition-opacity disabled:opacity-50"
           style={{
             background: "var(--color-primary)",
-            border: "none", cursor: submitting ? "not-allowed" : "pointer",
+            border: "none",
+            cursor: submitting || existingLogIdForDate ? "not-allowed" : "pointer",
             fontFamily: "inherit", letterSpacing: "0.1px",
           }}
         >

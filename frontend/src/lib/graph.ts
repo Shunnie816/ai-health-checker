@@ -1,4 +1,4 @@
-export type TrendSourceLog = {
+export type GraphSourceLog = {
   date: string;
   mood_morning: number;
   mood_after_work: number | null;
@@ -6,7 +6,7 @@ export type TrendSourceLog = {
   overtime_score: number | null;
 };
 
-export type TrendPoint = TrendSourceLog & {
+export type GraphPoint = GraphSourceLog & {
   /** X軸表示用ラベル (M/D) */
   label: string;
 };
@@ -41,11 +41,11 @@ function toLabel(date: string): string {
  * ログを日付昇順のグラフ用データに変換する。
  * period が "30d"/"90d" の場合は today を含む直近N日分に絞り込む。
  */
-export function toTrendPoints(
-  logs: TrendSourceLog[],
+export function toGraphPoints(
+  logs: GraphSourceLog[],
   period: Period,
   today: string
-): TrendPoint[] {
+): GraphPoint[] {
   const filtered =
     period === "all"
       ? logs

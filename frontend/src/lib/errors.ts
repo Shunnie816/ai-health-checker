@@ -5,3 +5,11 @@ export class DuplicateDateError extends Error {
     this.name = "DuplicateDateError";
   }
 }
+
+/** 分析対象期間にログが1件もない場合（バックエンドの404）を表すエラー */
+export class NoLogsError extends Error {
+  constructor() {
+    super("No logs found in the analysis period");
+    this.name = "NoLogsError";
+  }
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AnalysisReport, NoLogsError } from "@/lib/reports";
+import { NoLogsError } from "@/lib/errors";
+import { AnalysisReport } from "@/lib/reports";
 
 export type ReportsApi = {
   listReports: () => Promise<AnalysisReport[]>;

@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { listLogs, LogRecord } from "@/lib/api";
-import { getEmotionColor, getFatigueColor, getOvertimeColor, formatMood, formatDate } from "@/lib/colors";
+import { getEmotionColor, getFatigueColor, getOvertimeColor } from "@/lib/colors";
+import { formatDate, formatMood } from "@/lib/format";
+import { ChevronRightIcon } from "@/components/ui/icons";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyMessage, LoadingText } from "@/components/ui/status";
 
 export function HomeContent() {
   const [logs, setLogs] = useState<LogRecord[]>([]);
@@ -21,46 +25,43 @@ export function HomeContent() {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
 
-      {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg)] px-5 pb-3 pt-3.5">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
-            HealthLog
-          </h1>
-          <p className="mt-0.5 text-[13px] text-[var(--color-text-muted)]">直近の記録</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/graph"
-            className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
-          >
-            グラフ
-          </Link>
-          <Link
-            href="/reports"
-            className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white"
-            style={{ background: "var(--color-primary)" }}
-          >
-            AI分析
-          </Link>
-          <button
-            type="button"
-            onClick={() => signOut(auth)}
-            className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
-          >
-            ログアウト
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="HealthLog"
+        subtitle="直近の記録"
+        actions={
+          <>
+            <Link
+              href="/graph"
+              className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
+            >
+              グラフ
+            </Link>
+            <Link
+              href="/reports"
+              className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white"
+              style={{ background: "var(--color-primary)" }}
+            >
+              AI分析
+            </Link>
+            <button
+              type="button"
+              onClick={() => signOut(auth)}
+              className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
+            >
+              ログアウト
+            </button>
+          </>
+        }
+      />
 
       {/* Log list */}
       <div className="flex flex-col gap-2 px-4 pb-24 pt-3">
         {loading ? (
-          <p className="mt-12 text-center text-[var(--color-text-muted)]">読み込み中...</p>
+          <LoadingText />
         ) : logs.length === 0 ? (
-          <p className="mt-12 text-center leading-relaxed text-[var(--color-text-muted)]">
+          <EmptyMessage>
             まだログがありません。<br />最初の記録をつけましょう！
-          </p>
+          </EmptyMessage>
         ) : (
           logs.map((log) => <LogCard key={log.id} log={log} />)
         )}
@@ -99,9 +100,7 @@ function LogCard({ log }: { log: LogRecord }) {
             {log.is_holiday ? "休日" : "平日"}
           </span>
         </div>
-        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="shrink-0 opacity-30">
-          <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <ChevronRightIcon />
       </div>
 
       {/* Row 2: mood / fatigue / overtime */}

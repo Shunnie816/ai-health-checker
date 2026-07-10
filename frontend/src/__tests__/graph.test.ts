@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { TrendSourceLog, toTrendPoints } from "@/lib/trend";
-import { useTrend, TrendApi } from "@/hooks/useTrend";
+import { GraphSourceLog, toGraphPoints } from "@/lib/graph";
+import { useGraph, GraphApi } from "@/hooks/useGraph";
 
 const TODAY = "2026-07-09";
 
-function makeLog(date: string, overrides: Partial<TrendSourceLog> = {}): TrendSourceLog {
+function makeLog(date: string, overrides: Partial<GraphSourceLog> = {}): GraphSourceLog {
   return {
     date,
     mood_morning: 2,
@@ -16,11 +16,11 @@ function makeLog(date: string, overrides: Partial<TrendSourceLog> = {}): TrendSo
   };
 }
 
-describe("toTrendPoints", () => {
+describe("toGraphPoints", () => {
   it("should sort points by date ascending", () => {
     const logs = [makeLog("2026-07-05"), makeLog("2026-07-01"), makeLog("2026-07-03")];
 
-    const points = toTrendPoints(logs, "all", TODAY);
+    const points = toGraphPoints(logs, "all", TODAY);
 
     expect(points.map((p) => p.date)).toEqual([
       "2026-07-01",
@@ -36,7 +36,7 @@ describe("toTrendPoints", () => {
       makeLog(TODAY),
     ];
 
-    const points = toTrendPoints(logs, "30d", TODAY);
+    const points = toGraphPoints(logs, "30d", TODAY);
 
     expect(points.map((p) => p.date)).toEqual(["2026-06-10", TODAY]);
   });
@@ -44,13 +44,13 @@ describe("toTrendPoints", () => {
   it("should return all logs for all period", () => {
     const logs = [makeLog("2020-01-01"), makeLog(TODAY)];
 
-    const points = toTrendPoints(logs, "all", TODAY);
+    const points = toGraphPoints(logs, "all", TODAY);
 
     expect(points).toHaveLength(2);
   });
 
   it("should format label as M/D without zero padding", () => {
-    const points = toTrendPoints([makeLog("2026-07-05")], "all", TODAY);
+    const points = toGraphPoints([makeLog("2026-07-05")], "all", TODAY);
 
     expect(points[0].label).toBe("7/5");
   });
@@ -61,14 +61,14 @@ describe("toTrendPoints", () => {
       overtime_score: null,
     });
 
-    const points = toTrendPoints([holidayLog], "all", TODAY);
+    const points = toGraphPoints([holidayLog], "all", TODAY);
 
     expect(points[0].mood_after_work).toBeNull();
     expect(points[0].overtime_score).toBeNull();
   });
 });
 
-describe("useTrend", () => {
+describe("useGraph", () => {
   function daysAgo(n: number): string {
     const d = new Date();
     d.setDate(d.getDate() - n);
@@ -77,12 +77,12 @@ describe("useTrend", () => {
     return `${d.getFullYear()}-${mm}-${dd}`;
   }
 
-  it("should load logs on mount and expose trend points", async () => {
-    const api: TrendApi = {
+  it("should load logs on mount and expose graph points", async () => {
+    const api: GraphApi = {
       listLogs: vi.fn().mockResolvedValue([makeLog(daysAgo(1))]),
     };
 
-    const { result } = renderHook(() => useTrend(api));
+    const { result } = renderHook(() => useGraph(api));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.points).toHaveLength(1);
@@ -90,22 +90,22 @@ describe("useTrend", () => {
   });
 
   it("should set error message when loading logs fails", async () => {
-    const api: TrendApi = {
+    const api: GraphApi = {
       listLogs: vi.fn().mockRejectedValue(new Error("network error")),
     };
 
-    const { result } = renderHook(() => useTrend(api));
+    const { result } = renderHook(() => useGraph(api));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBe("ログの取得に失敗しました");
   });
 
   it("should narrow points when period changes from all to 30d", async () => {
-    const api: TrendApi = {
+    const api: GraphApi = {
       listLogs: vi.fn().mockResolvedValue([makeLog(daysAgo(60)), makeLog(daysAgo(1))]),
     };
 
-    const { result } = renderHook(() => useTrend(api));
+    const { result } = renderHook(() => useGraph(api));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     act(() => result.current.setPeriod("all"));

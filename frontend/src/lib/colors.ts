@@ -26,15 +26,3 @@ export function getOvertimeColor(score: number | null): string {
   if (score >= 1) return "var(--color-emotion-n2)";
   return "var(--color-primary)";
 }
-
-export function formatMood(v: number): string {
-  return v > 0 ? `+${v}` : String(v);
-}
-
-export function formatDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  const days = ["日", "月", "火", "水", "木", "金", "土"];
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}/${mm}/${dd} ${days[d.getDay()]}`;
-}

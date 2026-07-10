@@ -16,22 +16,47 @@ export async function resetEmulators(): Promise<void> {
   );
 }
 
+const TEST_EMAIL = "e2e-user@example.com";
+
 /**
- * Auth エミュレータの Google ログイン popup を操作してサインインする。
- * popup はエミュレータが提供する擬似アカウント選択画面。
+ * Auth エミュレータに Google 連携済みのテストユーザーを REST で事前作成する。
+ * popup 内のアカウント新規作成フォーム（CI で不安定）を経由せずに済む。
+ */
+async function createEmulatorGoogleUser(): Promise<void> {
+  const fakeIdToken = JSON.stringify({
+    sub: "e2e-user",
+    email: TEST_EMAIL,
+    email_verified: true,
+  });
+  await fetch(
+    `${AUTH_EMULATOR}/identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=demo-api-key`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requestUri: "http://localhost",
+        returnSecureToken: true,
+        postBody: `id_token=${encodeURIComponent(fakeIdToken)}&providerId=google.com`,
+      }),
+    }
+  );
+}
+
+/**
+ * Auth エミュレータの Google ログイン popup でサインインする。
+ * 事前作成済みアカウントを選択するだけの安定したフロー。
  */
 export async function signInWithGoogle(page: Page): Promise<void> {
+  await createEmulatorGoogleUser();
   await page.goto("/login");
 
   const popupPromise = page.waitForEvent("popup");
   await page.getByRole("button", { name: "Google でログイン" }).click();
   const popup = await popupPromise;
+  await popup.waitForLoadState();
 
-  await popup.getByRole("button", { name: "Add new account" }).click();
-  await popup
-    .getByRole("button", { name: "Auto-generate user information" })
-    .click();
-  await popup.getByRole("button", { name: "Sign in with Google.com" }).click();
+  // アカウント選択画面から事前作成したユーザーを選ぶ
+  await popup.getByText(TEST_EMAIL).click();
 
   // ホーム画面に遷移したらログイン完了
   await expect(

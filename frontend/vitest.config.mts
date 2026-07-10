@@ -6,5 +6,7 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
     environment: "jsdom",
+    // e2e/ は Playwright 管轄のため vitest の対象外にする
+    include: ["src/**/*.test.{ts,tsx}"],
   },
 });

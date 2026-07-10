@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useReports, ReportsApi } from "@/hooks/useReports";
-import { AnalysisReport, NoLogsError } from "@/lib/reports";
+import { NoLogsError } from "@/lib/errors";
+import { AnalysisReport } from "@/lib/reports";
 
 function makeReport(overrides: Partial<AnalysisReport> = {}): AnalysisReport {
   return {

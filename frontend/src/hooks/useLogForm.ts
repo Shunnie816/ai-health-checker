@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { logFormSchema, LogFormValues } from "@/lib/schemas/logSchema";
 
 export type { LogFormValues };
-export type LogFormFields = LogFormValues;
 
 const STANDARD_WORK_MINUTES = 9 * 60;
 

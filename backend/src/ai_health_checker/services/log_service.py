@@ -1,8 +1,13 @@
 from datetime import datetime, timezone
 
 from google.cloud.firestore import Client
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from ai_health_checker.models.log import Log, LogCreate, LogInDB, LogUpdate
+
+
+class DuplicateDateError(ValueError):
+    """同じ日付のログが既に存在する場合のエラー（1日1件の制約）"""
 
 
 def _logs_ref(db: Client, user_id: str):  # type: ignore[no-untyped-def]
@@ -10,6 +15,15 @@ def _logs_ref(db: Client, user_id: str):  # type: ignore[no-untyped-def]
 
 
 def create_log(db: Client, user_id: str, payload: LogCreate) -> LogInDB:
+    duplicate = list(
+        _logs_ref(db, user_id)
+        .where(filter=FieldFilter("date", "==", payload.date))
+        .limit(1)
+        .stream()
+    )
+    if duplicate:
+        raise DuplicateDateError(f"{payload.date} のログは既に存在します")
+
     log = Log(**payload.model_dump())
     now = datetime.now(timezone.utc)
     doc_ref = _logs_ref(db, user_id).document()
@@ -32,9 +46,9 @@ def list_logs(
 ) -> list[LogInDB]:
     query = _logs_ref(db, user_id).order_by("date", direction="DESCENDING")
     if start_date:
-        query = query.where(filter=("date", ">=", start_date))
+        query = query.where(filter=FieldFilter("date", ">=", start_date))
     if end_date:
-        query = query.where(filter=("date", "<=", end_date))
+        query = query.where(filter=FieldFilter("date", "<=", end_date))
     return [LogInDB(**doc.to_dict()) for doc in query.stream()]
 
 

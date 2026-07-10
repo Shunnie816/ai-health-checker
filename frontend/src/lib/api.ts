@@ -1,9 +1,10 @@
 import { getIdToken } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { DuplicateDateError } from "@/lib/errors";
 import { AnalysisReport, NoLogsError } from "@/lib/reports";
 
 export type { AnalysisReport };
-export { NoLogsError };
+export { DuplicateDateError, NoLogsError };
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -56,6 +57,7 @@ export async function createLog(payload: LogCreatePayload): Promise<LogRecord> {
     method: "POST",
     body: JSON.stringify(payload),
   });
+  if (res.status === 409) throw new DuplicateDateError();
   if (!res.ok) throw new Error(`Failed to create log: ${res.status}`);
   return res.json();
 }

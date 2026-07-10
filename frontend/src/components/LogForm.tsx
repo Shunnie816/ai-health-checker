@@ -12,7 +12,8 @@ import { ColoredSlider } from "@/components/ui/colored-slider";
 import { Card } from "@/components/ui/card";
 import { FormRow, Divider } from "@/components/ui/form-row";
 import { Toggle } from "@/components/ui/toggle";
-import { getEmotionColor, getFatigueColor, getOvertimeColor, formatMood } from "@/lib/colors";
+import { getEmotionColor, getFatigueColor, getOvertimeColor } from "@/lib/colors";
+import { formatMood } from "@/lib/format";
 
 type Props = {
   existingLog?: LogRecord;

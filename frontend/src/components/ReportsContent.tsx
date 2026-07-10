@@ -4,7 +4,7 @@ import Link from "next/link";
 import { listReports, runAnalysis } from "@/lib/api";
 import { AnalysisReport } from "@/lib/reports";
 import { ReportsApi, useReports } from "@/hooks/useReports";
-import { formatDate } from "@/lib/colors";
+import { formatDate } from "@/lib/format";
 
 // 参照を安定させるためモジュールレベルで生成する（useReports の effect 再実行防止）
 const reportsApi: ReportsApi = { listReports, runAnalysis };

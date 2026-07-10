@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { listLogs, LogRecord } from "@/lib/api";
-import { getEmotionColor, getFatigueColor, getOvertimeColor, formatMood, formatDate } from "@/lib/colors";
+import { getEmotionColor, getFatigueColor, getOvertimeColor } from "@/lib/colors";
+import { formatDate, formatMood } from "@/lib/format";
 
 export function HomeContent() {
   const [logs, setLogs] = useState<LogRecord[]>([]);

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AuthGuard } from "@/components/AuthGuard";
 import { AnalysisReport, listReports } from "@/lib/api";
-import { formatDate } from "@/lib/colors";
+import { formatDate } from "@/lib/format";
 
 type Props = {
   params: Promise<{ id: string }>;

@@ -51,13 +51,24 @@ ai-health-checker/
 ├── backend/                      # FastAPI (Cloud Run)
 │   ├── src/ai_health_checker/
 │   │   ├── main.py               # FastAPI エントリーポイント
-│   │   ├── etl.py                # PoC: Excel 読み込み（移行スクリプト用）
-│   │   ├── analysis.py           # PoC: 月次集計・相関分析
-│   │   └── dify.py               # PoC: Dify Dataset API 連携
+│   │   ├── dependencies.py       # 認証などの共通依存
+│   │   ├── firebase_app.py       # Firebase Admin 初期化
+│   │   ├── migrate_excel.py      # 既存 Excel → Firestore 移行スクリプト（ワンタイム）
+│   │   ├── models/               # Pydantic モデル（log / analysis）
+│   │   ├── routers/              # API ルーター（logs / analysis / reminders）
+│   │   └── services/             # ビジネスロジック（log / analysis / dify / email / reminder）
 │   ├── tests/
 │   ├── requirements.in
 │   └── requirements.txt
-├── frontend/                     # Next.js (App Hosting) ※ 未作成
+├── frontend/                     # Next.js (App Hosting)
+│   ├── src/
+│   │   ├── app/                  # App Router ページ（/ /login /logs /graph /reports）
+│   │   ├── components/           # 画面コンポーネント（ui/ は汎用パーツ）
+│   │   ├── context/              # AuthContext
+│   │   ├── hooks/                # ロジック用カスタムフック
+│   │   ├── lib/                  # APIクライアント・ユーティリティ
+│   │   └── __tests__/            # Vitest ユニットテスト
+│   └── e2e/                      # Playwright E2E テスト
 ├── docs/                         # 要件・設計ドキュメント
 │   ├── requirements.md
 │   └── architecture.md

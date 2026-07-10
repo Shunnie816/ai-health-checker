@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from google.cloud.firestore import Client
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from ai_health_checker.models.log import Log, LogCreate, LogInDB, LogUpdate
 
@@ -32,9 +33,9 @@ def list_logs(
 ) -> list[LogInDB]:
     query = _logs_ref(db, user_id).order_by("date", direction="DESCENDING")
     if start_date:
-        query = query.where(filter=("date", ">=", start_date))
+        query = query.where(filter=FieldFilter("date", ">=", start_date))
     if end_date:
-        query = query.where(filter=("date", "<=", end_date))
+        query = query.where(filter=FieldFilter("date", "<=", end_date))
     return [LogInDB(**doc.to_dict()) for doc in query.stream()]
 
 

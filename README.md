@@ -102,7 +102,12 @@ make lint        # Ruff lint チェック
 make lint-fix    # Ruff 自動修正 + Black フォーマット
 make typecheck   # mypy 型チェック
 make test        # pytest 実行
+make e2e         # E2E テスト（Playwright + フルエミュレータ構成）
 ```
+
+E2E テストはエミュレータ + ローカル backend/frontend を自動起動して実行する
+（実 stg には接続しない）。ポート 3000 / 8000 / 8080 / 9099 を使用するため、
+起動中のプロセスがあれば `make stop` で停止しておくこと。
 
 ## デプロイ（staging）
 

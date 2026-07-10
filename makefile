@@ -1,4 +1,4 @@
-.PHONY: venv run run-emulator emulator stop lint lint-fix format typecheck test compile sync upgrade clean docker-build docker-up docker-down
+.PHONY: venv run run-emulator emulator stop lint lint-fix format typecheck test e2e compile sync upgrade clean docker-build docker-up docker-down
 
 VENV = venv
 STAMP = $(VENV)/.installed
@@ -75,6 +75,11 @@ typecheck: venv
 test: venv
 	PYTHONPATH=backend/src $(VENV_PYTHON) -m pytest backend/tests/ -v; \
 	exit_code=$$?; [ $$exit_code -eq 5 ] && exit 0 || exit $$exit_code
+
+# E2E テスト（エミュレータ + backend + frontend を起動して Playwright 実行）
+e2e: venv
+	firebase emulators:exec --project ai-health-checker-stg --only auth,firestore \
+		"cd frontend && npx playwright test"
 
 docker-build:
 	docker compose build

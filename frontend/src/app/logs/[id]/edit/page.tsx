@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/AuthGuard";
 import { LogForm } from "@/components/LogForm";
+import { LoadingText } from "@/components/ui/status";
 import { listLogs, LogRecord } from "@/lib/api";
 
 type Props = {
@@ -28,7 +29,7 @@ function EditLogContent({ id }: { id: string }) {
       .finally(() => setLoading(false));
   }, [id, router]);
 
-  if (loading) return <p style={{ textAlign: "center", marginTop: "2rem" }}>読み込み中...</p>;
+  if (loading) return <LoadingText />;
   if (!log) return null;
   return <LogForm existingLog={log} />;
 }

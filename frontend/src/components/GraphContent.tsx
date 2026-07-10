@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Bar,
   BarChart,
@@ -16,6 +15,8 @@ import {
 import { listLogs } from "@/lib/api";
 import { PERIOD_OPTIONS, GraphPoint } from "@/lib/graph";
 import { GraphApi, useGraph } from "@/hooks/useGraph";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyMessage, ErrorBanner, LoadingText } from "@/components/ui/status";
 
 // 参照を安定させるためモジュールレベルで生成する（useGraph の effect 再実行防止）
 const graphApi: GraphApi = { listLogs };
@@ -34,24 +35,7 @@ export function GraphContent() {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
 
-      {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-[var(--color-border)] bg-[var(--color-bg)] px-5 pb-3 pt-3.5">
-        <Link
-          href="/"
-          aria-label="戻る"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
-        >
-          <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-            <path d="M7 1L1 7l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
-            グラフ
-          </h1>
-          <p className="mt-0.5 text-[13px] text-[var(--color-text-muted)]">トレンド可視化</p>
-        </div>
-      </div>
+      <PageHeader title="グラフ" subtitle="トレンド可視化" backHref="/" />
 
       <div className="flex flex-col gap-3 px-4 pb-10 pt-3">
 
@@ -74,18 +58,14 @@ export function GraphContent() {
           ))}
         </div>
 
-        {error && (
-          <p className="rounded-xl bg-[var(--color-danger-subtle)] px-4 py-3 text-[13px] text-[var(--color-danger)]">
-            {error}
-          </p>
-        )}
+        {error && <ErrorBanner>{error}</ErrorBanner>}
 
         {loading ? (
-          <p className="mt-12 text-center text-[var(--color-text-muted)]">読み込み中...</p>
+          <LoadingText />
         ) : points.length === 0 && !error ? (
-          <p className="mt-12 text-center leading-relaxed text-[var(--color-text-muted)]">
+          <EmptyMessage>
             この期間のログがありません。<br />記録をつけてトレンドを確認しましょう。
-          </p>
+          </EmptyMessage>
         ) : (
           <>
             <MoodChart points={points} />

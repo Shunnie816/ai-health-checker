@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { todayString } from "@/lib/format";
 import { logFormSchema, LogFormValues } from "@/lib/schemas/logSchema";
 
 export type { LogFormValues };
@@ -35,10 +36,6 @@ export function calcOvertime(work_start: string, work_end: string): OvertimePrev
   if (!work_start || !work_end) return null;
   const minutes = calcOvertimeMinutes(work_start, work_end);
   return { minutes, score: calcOvertimeScore(minutes) };
-}
-
-function todayString(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 const DEFAULT_VALUES: LogFormValues = {

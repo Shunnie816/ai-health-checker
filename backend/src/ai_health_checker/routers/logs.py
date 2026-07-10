@@ -14,7 +14,10 @@ async def create_log(
     user_id: str = Depends(get_current_user_id),
     db: Client = Depends(get_db),
 ) -> LogInDB:
-    return log_service.create_log(db, user_id, payload)
+    try:
+        return log_service.create_log(db, user_id, payload)
+    except log_service.DuplicateDateError as e:
+        raise HTTPException(status_code=409, detail=str(e)) from e
 
 
 @router.get("", response_model=list[LogInDB])

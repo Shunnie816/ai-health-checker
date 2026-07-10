@@ -72,6 +72,26 @@ class TestCreateLog:
         assert response.status_code == 422
 
 
+    def test_should_return_409_when_date_already_exists(
+        self, client: TestClient, mock_db: MagicMock
+    ) -> None:
+        get_logs_ref(
+            mock_db
+        ).where.return_value.limit.return_value.stream.return_value = [MagicMock()]
+
+        response = client.post(
+            "/logs",
+            json={
+                "date": "2026-06-26",
+                "is_holiday": True,
+                "mood_morning": 4,
+                "fatigue": 1,
+            },
+        )
+
+        assert response.status_code == 409
+
+
 class TestListLogs:
     def test_should_return_logs_for_authenticated_user(
         self, client: TestClient, mock_db: MagicMock

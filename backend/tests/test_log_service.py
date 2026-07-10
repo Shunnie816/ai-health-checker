@@ -53,6 +53,26 @@ class TestCreateLog:
         assert result.overtime_score is None
 
 
+    def test_should_raise_duplicate_date_error_when_same_date_exists(
+        self, mock_db: MagicMock
+    ) -> None:
+        get_logs_ref(
+            mock_db
+        ).where.return_value.limit.return_value.stream.return_value = [MagicMock()]
+
+        payload = LogCreate(
+            date="2026-06-26",
+            is_holiday=True,
+            mood_morning=4,
+            fatigue=1,
+        )
+
+        with pytest.raises(log_service.DuplicateDateError):
+            log_service.create_log(mock_db, TEST_USER_ID, payload)
+
+        get_logs_ref(mock_db).document.return_value.set.assert_not_called()
+
+
 class TestListLogs:
     def test_should_convert_firestore_documents_to_log_list(
         self, mock_db: MagicMock

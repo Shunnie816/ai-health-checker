@@ -1,0 +1,133 @@
+<!-- @dsCard group="Type" -->
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typography</title>
+<style>
+:root {
+  /* Primary: calm teal */
+  --color-primary:        oklch(0.56 0.11 195);
+  --color-primary-hover:  oklch(0.50 0.12 195);
+  --color-primary-subtle: oklch(0.94 0.03 195);
+
+  /* Secondary: soft sage */
+  --color-secondary:        oklch(0.62 0.09 148);
+  --color-secondary-subtle: oklch(0.94 0.03 148);
+
+  /* Background & Surface */
+  --color-bg:        oklch(0.98 0.004 240);
+  --color-surface-1: oklch(0.96 0.004 240);
+  --color-surface-2: oklch(0.92 0.005 240);
+
+  /* Text */
+  --color-text-primary:   oklch(0.18 0.010 240);
+  --color-text-secondary: oklch(0.40 0.010 240);
+  --color-text-muted:     oklch(0.60 0.010 240);
+
+  /* Border */
+  --color-border:        oklch(0.88 0.005 240);
+  --color-border-strong: oklch(0.78 0.008 240);
+
+  /* Danger */
+  --color-danger:        oklch(0.55 0.18 25);
+  --color-danger-subtle: oklch(0.95 0.04 25);
+
+  /* Emotion score: -5 → +5（JS の getEmotionColor から参照） */
+  --color-emotion-n5: oklch(0.46 0.18 24);
+  --color-emotion-n4: oklch(0.53 0.16 29);
+  --color-emotion-n3: oklch(0.62 0.14 44);
+  --color-emotion-n2: oklch(0.71 0.12 65);
+  --color-emotion-n1: oklch(0.78 0.10 90);
+  --color-emotion-0:  oklch(0.70 0.02 240);
+  --color-emotion-p1: oklch(0.74 0.09 148);
+  --color-emotion-p2: oklch(0.67 0.11 152);
+  --color-emotion-p3: oklch(0.61 0.13 158);
+  --color-emotion-p4: oklch(0.57 0.13 170);
+  --color-emotion-p5: oklch(0.53 0.12 188);
+
+  /* Fatigue: 1 (fresh) → 5 (exhausted)（JS の getFatigueColor から参照） */
+  --color-fatigue-1: oklch(0.62 0.13 158);
+  --color-fatigue-2: oklch(0.68 0.10 135);
+  --color-fatigue-3: oklch(0.76 0.10  80);
+  --color-fatigue-4: oklch(0.63 0.15  44);
+  --color-fatigue-5: oklch(0.50 0.17  25);
+
+  /* Shadows */
+  --shadow-card:    0 1px 3px oklch(0.18 0.01 240 / 0.08), 0 1px 2px oklch(0.18 0.01 240 / 0.06);
+  --shadow-overlay: 0 8px 24px oklch(0.18 0.01 240 / 0.16), 0 2px 8px oklch(0.18 0.01 240 / 0.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:        oklch(0.14 0.010 240);
+    --color-surface-1: oklch(0.18 0.010 240);
+    --color-surface-2: oklch(0.23 0.010 240);
+    --color-primary:        oklch(0.65 0.11 195);
+    --color-primary-hover:  oklch(0.70 0.11 195);
+    --color-primary-subtle: oklch(0.22 0.05 195);
+    --color-secondary:        oklch(0.68 0.09 148);
+    --color-secondary-subtle: oklch(0.22 0.04 148);
+    --color-text-primary:   oklch(0.92 0.005 240);
+    --color-text-secondary: oklch(0.72 0.008 240);
+    --color-text-muted:     oklch(0.52 0.008 240);
+    --color-border:        oklch(0.28 0.010 240);
+    --color-border-strong: oklch(0.38 0.010 240);
+    --color-danger:        oklch(0.62 0.18 25);
+    --color-danger-subtle: oklch(0.20 0.06 25);
+    --color-emotion-n5: oklch(0.55 0.17 24);
+    --color-emotion-n4: oklch(0.60 0.15 29);
+    --color-emotion-n3: oklch(0.68 0.13 44);
+    --color-emotion-n2: oklch(0.76 0.11 65);
+    --color-emotion-n1: oklch(0.82 0.09 90);
+    --color-emotion-0:  oklch(0.60 0.02 240);
+    --color-emotion-p1: oklch(0.76 0.09 148);
+    --color-emotion-p2: oklch(0.70 0.11 152);
+    --color-emotion-p3: oklch(0.65 0.13 158);
+    --color-emotion-p4: oklch(0.62 0.13 170);
+    --color-emotion-p5: oklch(0.60 0.12 188);
+    --color-fatigue-1: oklch(0.65 0.13 158);
+    --color-fatigue-2: oklch(0.70 0.10 135);
+    --color-fatigue-3: oklch(0.78 0.10  80);
+    --color-fatigue-4: oklch(0.66 0.15  44);
+    --color-fatigue-5: oklch(0.56 0.17  25);
+    --shadow-card:    0 1px 3px oklch(0 0 0 / 0.30), 0 1px 2px oklch(0 0 0 / 0.20);
+    --shadow-overlay: 0 8px 24px oklch(0 0 0 / 0.50), 0 2px 8px oklch(0 0 0 / 0.30);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  input[type="date"],
+  input[type="time"] { color-scheme: dark; }
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+  background: var(--color-bg); color: var(--color-text-primary);
+  padding: 20px; font-size: 14px;
+}
+h2 { font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--color-text-muted); margin: 24px 0 10px; text-transform: uppercase; }
+h2:first-of-type { margin-top: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.sw { width: 108px; }
+.chip { height: 44px; border-radius: 8px; border: 1px solid var(--color-border); }
+.name { font-size: 11px; color: var(--color-text-muted); margin-top: 4px; line-height: 1.4; }
+</style>
+</head>
+<body>
+<h2>Type ramp — Tailwind 標準スケール / Noto Sans JP</h2>
+<div style="display:flex;flex-direction:column;gap:14px">
+  <div><span class="name">text-xl · 20px · semibold — 画面タイトル</span><div style="font-size:20px;font-weight:600;letter-spacing:-.01em">今日の記録をつけましょう</div></div>
+  <div><span class="name">text-lg · 18px · semibold — セクション見出し</span><div style="font-size:18px;font-weight:600">2026/07/01 月 〜 2026/07/12 日</div></div>
+  <div><span class="name">text-base · 16px · normal — 本文（レポート等）</span><div style="font-size:16px">残業が増えた週は疲労度が高く、気分スコアも低下する傾向があります。</div></div>
+  <div><span class="name">text-sm · 14px · medium — ラベル・カード内テキスト</span><div style="font-size:14px;font-weight:500;color:var(--color-text-secondary)">朝の気分　疲れ度　残業スコア</div></div>
+  <div><span class="name">text-xs · 12px · normal — 補足・メタ情報</span><div style="font-size:12px;color:var(--color-text-muted)">対象ログ 30 件 ・ 9:00 – 19:30</div></div>
+</div>
+<h2>Weights — 3段のみ</h2>
+<div class="row" style="gap:24px;font-size:16px">
+  <span style="font-weight:400">Normal 400 あア亜</span>
+  <span style="font-weight:500">Medium 500 あア亜</span>
+  <span style="font-weight:600">Semibold 600 あア亜</span>
+</div>
+<p class="name" style="margin-top:16px;max-width:520px">現画面に残る text-[11px] / [13px] / [15px] 等の任意値は Phase2 で標準スケールへ集約する。</p>
+</body>
+</html>

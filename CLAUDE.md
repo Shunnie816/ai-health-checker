@@ -10,6 +10,7 @@
 > 詳細は `docs/` を参照：
 > - [要件定義](docs/requirements.md) — データモデル・MVP スコープ・機能仕様
 > - [アーキテクチャ設計](docs/architecture.md) — 全体構成・データフロー・ディレクトリ設計
+> - [デザインシステム](docs/design-system.md) — デザイントークン・UI運用ルール
 
 ---
 
@@ -68,10 +69,12 @@ ai-health-checker/
 │   │   ├── hooks/                # ロジック用カスタムフック
 │   │   ├── lib/                  # APIクライアント・ユーティリティ
 │   │   └── __tests__/            # Vitest ユニットテスト
-│   └── e2e/                      # Playwright E2E テスト
+│   ├── e2e/                      # Playwright E2E テスト
+│   └── design-system/            # Claude Design 同期用プレビュー（@dsCard付きHTML）
 ├── docs/                         # 要件・設計ドキュメント
 │   ├── requirements.md
-│   └── architecture.md
+│   ├── architecture.md
+│   └── design-system.md
 ├── pyproject.toml                # ruff / black / mypy 設定
 ├── makefile
 └── .github/workflows/

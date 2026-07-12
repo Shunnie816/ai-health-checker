@@ -24,7 +24,7 @@ export default function LoginPage() {
   if (loading || user) return null;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-canvas px-6">
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-2 bg-canvas px-6">
       {/* App icon */}
       <div
         className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary"
@@ -52,6 +52,10 @@ export default function LoginPage() {
         </svg>
         Google でログイン
       </button>
+
+      <footer className="absolute bottom-6 text-xs text-fg-muted">
+        © 2026 Shunnie816
+      </footer>
     </main>
   );
 }

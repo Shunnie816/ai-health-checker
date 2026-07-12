@@ -18,6 +18,9 @@ const backendCommand =
 
 export default defineConfig({
   testDir: "./e2e",
+  // design-shots はデザイン確認用のスクリーンショット採取専用。
+  // 通常の E2E 実行からは除外し、DESIGN_SHOTS=1 のときだけ動かす
+  testIgnore: process.env.DESIGN_SHOTS ? [] : ["**/design-shots.spec.ts"],
   fullyParallel: false, // エミュレータのデータをテスト間でリセットするため直列実行
   workers: 1,
   forbidOnly: !!process.env.CI,

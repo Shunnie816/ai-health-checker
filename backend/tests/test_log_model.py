@@ -58,7 +58,7 @@ class TestLogCreate:
         )
         assert log.work_start == "09:00"
 
-    def test_should_raise_when_workday_missing_work_times(self) -> None:
+    def test_should_raise_when_workday_missing_work_start(self) -> None:
         with pytest.raises(ValidationError, match="work_start"):
             LogCreate(
                 date="2026-06-25",
@@ -68,14 +68,23 @@ class TestLogCreate:
                 fatigue=3,
             )
 
-    def test_should_raise_when_workday_missing_mood_after_work(self) -> None:
-        with pytest.raises(ValidationError, match="mood_after_work"):
+    def test_should_create_morning_partial_log_on_workday(self) -> None:
+        log = LogCreate(
+            date="2026-06-25",
+            is_holiday=False,
+            mood_morning=2,
+            work_start="09:00",
+        )
+        assert log.work_end is None
+        assert log.mood_after_work is None
+        assert log.fatigue is None
+
+    def test_should_raise_when_work_end_is_set_without_work_start(self) -> None:
+        with pytest.raises(ValidationError, match="work_start"):
             LogCreate(
                 date="2026-06-25",
-                is_holiday=False,
+                is_holiday=True,
                 mood_morning=2,
-                fatigue=3,
-                work_start="09:00",
                 work_end="18:00",
             )
 
@@ -118,6 +127,16 @@ class TestLog:
             is_holiday=True,
             mood_morning=5,
             fatigue=1,
+        )
+        assert log.overtime_minutes is None
+        assert log.overtime_score is None
+
+    def test_should_not_compute_overtime_when_work_end_is_missing(self) -> None:
+        log = Log(
+            date="2026-06-25",
+            is_holiday=False,
+            mood_morning=1,
+            work_start="09:00",
         )
         assert log.overtime_minutes is None
         assert log.overtime_score is None

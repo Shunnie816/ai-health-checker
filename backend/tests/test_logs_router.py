@@ -55,7 +55,31 @@ class TestCreateLog:
         assert body["overtime_minutes"] is None
         assert body["overtime_score"] is None
 
-    def test_should_return_422_when_workday_missing_work_times(
+    def test_should_create_morning_partial_log_and_return_201(
+        self, client: TestClient, mock_db: MagicMock
+    ) -> None:
+        doc_ref = MagicMock()
+        doc_ref.id = TEST_LOG_ID
+        get_logs_ref(mock_db).document.return_value = doc_ref
+
+        response = client.post(
+            "/logs",
+            json={
+                "date": "2026-06-26",
+                "is_holiday": False,
+                "mood_morning": 3,
+                "work_start": "09:00",
+            },
+        )
+
+        assert response.status_code == 201
+        body = response.json()
+        assert body["fatigue"] is None
+        assert body["mood_after_work"] is None
+        assert body["work_end"] is None
+        assert body["overtime_score"] is None
+
+    def test_should_return_422_when_workday_missing_work_start(
         self, client: TestClient, mock_db: MagicMock
     ) -> None:
         response = client.post(

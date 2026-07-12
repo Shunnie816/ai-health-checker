@@ -37,7 +37,9 @@ class LogCreate(BaseModel):
     mood_after_work: int | None = Field(
         default=None, ge=-5, le=5, description="仕事終わりの気分 (-5〜+5)"
     )
-    fatigue: int = Field(ge=1, le=5, description="疲れ度 (1〜5)")
+    fatigue: int | None = Field(
+        default=None, ge=1, le=5, description="疲れ度 (1〜5)"
+    )
     comment: str | None = Field(default=None, description="感想・気分の自由記述")
     work_content: str | None = Field(default=None, description="その日の仕事内容")
     work_start: str | None = Field(default=None, description="勤務開始時刻 (HH:MM)")
@@ -48,19 +50,12 @@ class LogCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_workday_fields(self) -> Self:
-        if not self.is_holiday:
-            missing = [
-                f for f, v in [
-                    ("work_start", self.work_start),
-                    ("work_end", self.work_end),
-                    ("mood_after_work", self.mood_after_work),
-                ]
-                if v is None
-            ]
-            if missing:
-                raise ValueError(
-                    f"is_holiday=false の場合、{', '.join(missing)} は必須です"
-                )
+        # work_end / mood_after_work / fatigue は勤務終了後にしか分からないため、
+        # 平日でも未入力で保存し後から追記できる（#94 朝の分割入力）
+        if not self.is_holiday and self.work_start is None:
+            raise ValueError("is_holiday=false の場合、work_start は必須です")
+        if self.work_end is not None and self.work_start is None:
+            raise ValueError("work_end を設定する場合、work_start は必須です")
         return self
 
 

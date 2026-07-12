@@ -102,7 +102,7 @@ def row_to_log_create(row: dict[str, Any]) -> LogCreate:
         is_holiday=False,
         mood_morning=_to_int(row.get("mood_morning")),  # type: ignore[arg-type]
         mood_after_work=_to_int(row.get("mood_after_work")),
-        fatigue=_to_int(row.get("fatigue")),  # type: ignore[arg-type]
+        fatigue=_to_int(row.get("fatigue")),
         comment=_to_text(row.get("comment")),
         work_content=_to_text(row.get("work_content")),
         work_start=_to_time_str(row.get("work_start")),

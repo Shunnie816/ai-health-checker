@@ -5,7 +5,7 @@ from google.cloud.firestore import Client
 from ai_health_checker.dependencies import get_user_email
 from ai_health_checker.models.analysis import AnalysisReportInDB
 from ai_health_checker.models.log import LogInDB
-from ai_health_checker.services import dify_service, log_service
+from ai_health_checker.services import llm_service, log_service
 from ai_health_checker.services.email_service import send_report_email
 
 DEFAULT_PERIOD_DAYS = 30
@@ -62,7 +62,7 @@ def run_analysis_for_user(
         raise ValueError("対象期間のログが見つかりません")
 
     prompt = _build_prompt(logs, resolved_start, resolved_end)
-    content = dify_service.generate_analysis_report(prompt, user_id)
+    content = llm_service.generate_analysis_report(prompt, user_id)
 
     now = datetime.now(timezone.utc)
     doc_ref = _reports_ref(db, user_id).document()

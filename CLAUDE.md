@@ -4,8 +4,8 @@
 
 個人のライフログを蓄積し、AIが長期分析できるプラットフォーム。
 
-**現在のフェーズ**: PoC（Excel → ETL → Dify RAG）  
-**将来のゴール**: Next.js + Firestore + FastAPI + Dify による本格的なライフログプラットフォーム
+**現在のフェーズ**: MVP 実装済み・v1.0 リリース準備  
+**将来のゴール**: 蓄積データを活かした長期分析（幸福度指数などの独自指標）への発展
 
 > 詳細は `docs/` を参照：
 > - [要件定義](docs/requirements.md) — データモデル・MVP スコープ・機能仕様
@@ -21,7 +21,7 @@ Firebase App Hosting（Next.js）
         ↓ Firebase Auth token
 Cloud Run（FastAPI）
   ├── Firestore    ← CRUD
-  ├── Dify API     ← AI 分析
+  ├── Claude API   ← AI 分析
   └── Email        ← 通知
         ↑
 Cloud Scheduler（定期実行）
@@ -39,7 +39,7 @@ Cloud Scheduler（定期実行）
 | バックエンド | Python / FastAPI |
 | 認証 | Firebase Auth |
 | データベース | Firestore |
-| AI | Dify / RAG |
+| AI | Anthropic Claude API（claude-haiku-4-5） |
 | インフラ | Cloud Run（backend）/ Firebase App Hosting（frontend） |
 | 通知 | Email |
 
@@ -57,7 +57,7 @@ ai-health-checker/
 │   │   ├── migrate_excel.py      # 既存 Excel → Firestore 移行スクリプト（ワンタイム）
 │   │   ├── models/               # Pydantic モデル（log / analysis）
 │   │   ├── routers/              # API ルーター（logs / analysis / reminders）
-│   │   └── services/             # ビジネスロジック（log / analysis / dify / email / reminder）
+│   │   └── services/             # ビジネスロジック（log / analysis / llm / email / reminder）
 │   ├── tests/
 │   ├── requirements.in
 │   └── requirements.txt
@@ -104,9 +104,7 @@ make clean       # venv 削除
 `.env` ファイルに以下を設定：
 
 ```
-DATASET_API_KEY=    # Dify Dataset API キー（PoC ETL のドキュメント登録用）
-DATASET_ID=         # Dify Dataset ID
-APP_API_KEY=        # Dify Chat App API キー（AI 分析レポート生成用）
+ANTHROPIC_API_KEY=  # Anthropic APIキー（AI 分析レポート生成用）
 SCHEDULER_API_KEY=  # Cloud Scheduler トリガー認証用の共有シークレット
 SMTP_HOST=          # レポート完了メール送信用（未設定の場合は送信をスキップ）
 SMTP_PORT=          # 未設定時は 587

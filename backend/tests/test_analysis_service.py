@@ -24,7 +24,7 @@ class TestRunAnalysisForUser:
         user_email: str | None = TEST_EMAIL,
     ) -> MagicMock:
         monkeypatch.setattr(
-            analysis_service.dify_service,
+            analysis_service.llm_service,
             "generate_analysis_report",
             MagicMock(return_value=content),
         )

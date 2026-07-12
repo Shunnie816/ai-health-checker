@@ -58,7 +58,7 @@ export function HomeContent() {
       />
 
       {/* Log list */}
-      <div className="flex flex-col gap-2 px-4 pb-24 pt-3">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-24 pt-3">
         {loading ? (
           <LoadingText />
         ) : logs.length === 0 ? (
@@ -74,7 +74,7 @@ export function HomeContent() {
       <Link
         href="/logs/new"
         aria-label="新規記録"
-        className="fixed bottom-7 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-3xl leading-none text-white shadow-xl"
+        className="fixed bottom-7 right-[max(1.25rem,calc(50%-14.75rem))] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-3xl leading-none text-white shadow-xl"
       >
         +
       </Link>

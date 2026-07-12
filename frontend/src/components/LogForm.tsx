@@ -112,35 +112,35 @@ export function LogForm({ existingLog }: Props) {
     <div className="relative flex min-h-screen flex-col bg-canvas">
 
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 flex shrink-0 items-center gap-2.5 border-b border-border bg-canvas px-5 pb-3 pt-3.5">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex cursor-pointer items-center gap-1 p-0 text-base font-medium text-primary focus:outline-none"
-         
-        >
-          <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
-            <path d="M7 1.5L1.5 6.5L7 11.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          戻る
-        </button>
-        <span className="text-lg font-semibold text-fg">
-          {existingLog ? "詳細・編集" : "新規記録"}
-        </span>
-        {existingLog && (
+      <div className="sticky top-0 z-10 shrink-0 border-b border-border bg-canvas px-5 pb-3 pt-3.5">
+        <div className="mx-auto flex w-full max-w-lg items-center gap-2.5">
           <button
             type="button"
-            onClick={() => setShowDeleteConfirm(true)}
-            className="ml-auto cursor-pointer p-0 text-sm font-medium text-danger focus:outline-none"
-           
+            onClick={() => router.back()}
+            className="flex cursor-pointer items-center gap-1 p-0 text-base font-medium text-primary focus:outline-none"
           >
-            削除
+            <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
+              <path d="M7 1.5L1.5 6.5L7 11.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            戻る
           </button>
-        )}
+          <span className="text-lg font-semibold text-fg">
+            {existingLog ? "詳細・編集" : "新規記録"}
+          </span>
+          {existingLog && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="ml-auto cursor-pointer p-0 text-sm font-medium text-danger focus:outline-none"
+            >
+              削除
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Form body */}
-      <form onSubmit={form.handleSubmit(onValid)} className="flex flex-col gap-2.5 px-4 pb-10 pt-3.5">
+      <form onSubmit={form.handleSubmit(onValid)} className="mx-auto flex w-full max-w-lg flex-col gap-2.5 px-4 pb-10 pt-3.5">
 
         {apiError && (
           <p className="rounded-xl bg-danger-subtle px-3.5 py-2.5 text-sm text-danger">
@@ -161,7 +161,6 @@ export function LogForm({ existingLog }: Props) {
               type="button"
               onClick={() => router.push(`/logs/${existingLogIdForDate}/edit`)}
               className="shrink-0 cursor-pointer rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-white"
-             
             >
               編集画面を開く
             </button>
@@ -177,7 +176,6 @@ export function LogForm({ existingLog }: Props) {
               onChange={(e) => setField("date", e.target.value)}
               required
               className="cursor-pointer bg-transparent py-3.5 text-right text-sm text-fg outline-none"
-             
             />
           </FormRow>
           <Divider />
@@ -258,7 +256,6 @@ export function LogForm({ existingLog }: Props) {
                 onChange={(e) => setField("work_content", e.target.value)}
                 placeholder="今日の業務内容…"
                 className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-fg outline-none placeholder:text-fg-muted"
-               
               />
             </Card>
           </>
@@ -280,7 +277,6 @@ export function LogForm({ existingLog }: Props) {
             onChange={(e) => setField("comment", e.target.value)}
             placeholder="今日のメモ…"
             className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-fg outline-none placeholder:text-fg-muted"
-           
           />
         </Card>
 
@@ -297,7 +293,7 @@ export function LogForm({ existingLog }: Props) {
       {/* Delete confirmation bottom sheet */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-20 flex items-end bg-black/40">
-          <div className="w-full rounded-t-2xl bg-canvas px-5 pb-10 pt-3">
+          <div className="mx-auto w-full max-w-lg rounded-t-2xl bg-canvas px-5 pb-10 pt-3">
             <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-border" />
             <h2 className="mb-1.5 text-lg font-semibold text-fg">
               記録を削除しますか？
@@ -310,7 +306,6 @@ export function LogForm({ existingLog }: Props) {
                 type="button"
                 onClick={handleDelete}
                 className="w-full cursor-pointer rounded-xl bg-danger py-3.5 text-base font-semibold text-white"
-               
               >
                 削除する
               </button>
@@ -318,7 +313,6 @@ export function LogForm({ existingLog }: Props) {
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
                 className="w-full cursor-pointer rounded-xl border border-border bg-surface-1 py-3.5 text-base font-medium text-fg"
-               
               >
                 キャンセル
               </button>

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from google.cloud.firestore import Client
+from pydantic import ValidationError
 
 from ai_health_checker.dependencies import get_current_user_id, get_db
 from ai_health_checker.models.log import LogCreate, LogInDB, LogUpdate
@@ -52,5 +53,8 @@ async def update_log(
 ) -> LogInDB:
     try:
         return log_service.update_log(db, user_id, log_id, payload)
+    except ValidationError as e:
+        # 更新後の状態が不整合（例: 平日なのに勤務時間なし）
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e

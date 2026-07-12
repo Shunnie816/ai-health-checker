@@ -18,7 +18,7 @@ def _stub_analysis_collaborators(
     monkeypatch: pytest.MonkeyPatch, content: str = "分析結果です。"
 ) -> None:
     monkeypatch.setattr(
-        analysis_service.dify_service,
+        analysis_service.llm_service,
         "generate_analysis_report",
         MagicMock(return_value=content),
     )

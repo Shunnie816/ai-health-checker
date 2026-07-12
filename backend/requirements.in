@@ -4,8 +4,7 @@ openpyxl
 fastapi
 uvicorn
 firebase-admin
-requests
-types-requests
+anthropic
 python-dotenv
 ruff
 black

@@ -35,7 +35,7 @@ export function ReportsContent() {
       />
 
       {/* Body */}
-      <div className="flex flex-col gap-2 px-4 pb-10 pt-3">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-10 pt-3">
         {running && (
           <p className="rounded-xl bg-primary-subtle px-4 py-3 text-sm leading-relaxed text-fg-secondary">
             AIが直近のログを分析しています。1分ほどかかることがあります。

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import { resetEmulators, signInWithGoogle, createWeekdayLog } from "./helpers";
 
 /**
@@ -48,15 +48,12 @@ async function seedReport(uid: string): Promise<void> {
   );
 }
 
-test.use({ viewport: { width: 390, height: 844 } });
-
-test("全画面のスクリーンショットを採取する", async ({ page }) => {
-  test.setTimeout(180_000);
+async function captureAll(page: Page, prefix: string): Promise<void> {
   await resetEmulators();
 
   await page.goto("/login");
   await expect(page.getByRole("button", { name: "Google でログイン" })).toBeVisible();
-  await page.screenshot({ path: `${SHOT_DIR}/login.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}login.png`, fullPage: true });
 
   await signInWithGoogle(page);
   await createWeekdayLog(page, { date: "2026-07-08", workEnd: "19:30" });
@@ -65,30 +62,48 @@ test("全画面のスクリーンショットを採取する", async ({ page }) 
   await expect(page.getByText("2026/07/09")).toBeVisible();
   await createWeekdayLog(page, { date: "2026-07-10", workEnd: "21:00" });
   await expect(page.getByText("2026/07/10")).toBeVisible();
-  await page.screenshot({ path: `${SHOT_DIR}/home.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}home.png`, fullPage: true });
 
   await page.getByRole("link", { name: "新規記録" }).click();
   await expect(page.getByText("新規記録")).toBeVisible();
-  await page.screenshot({ path: `${SHOT_DIR}/log-new.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}log-new.png`, fullPage: true });
 
   await page.goto("/");
   await page.getByText("2026/07/10").click();
   await expect(page.getByText("詳細・編集")).toBeVisible({ timeout: 15_000 });
-  await page.screenshot({ path: `${SHOT_DIR}/log-edit.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}log-edit.png`, fullPage: true });
 
   await page.goto("/graph");
   await expect(page.getByRole("heading", { name: "グラフ" })).toBeVisible();
   await page.waitForTimeout(1500); // recharts 描画待ち
-  await page.screenshot({ path: `${SHOT_DIR}/graph.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}graph.png`, fullPage: true });
 
   const uid = await getUid();
   await seedReport(uid);
   await page.goto("/reports");
   await expect(page.getByText("2026/06/12")).toBeVisible({ timeout: 15_000 });
-  await page.screenshot({ path: `${SHOT_DIR}/reports.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}reports.png`, fullPage: true });
 
   await page.locator('a[href="/reports/seed-report-1"]').click();
   await expect(page).toHaveURL(/\/reports\/seed-report-1/, { timeout: 15_000 });
   await expect(page.getByText("対象ログ 3 件")).toBeVisible({ timeout: 15_000 });
-  await page.screenshot({ path: `${SHOT_DIR}/report-detail.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOT_DIR}/${prefix}report-detail.png`, fullPage: true });
+}
+
+test.describe("mobile", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("全画面のスクリーンショットを採取する（モバイル）", async ({ page }) => {
+    test.setTimeout(180_000);
+    await captureAll(page, "");
+  });
+});
+
+test.describe("desktop", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("全画面のスクリーンショットを採取する（PC）", async ({ page }) => {
+    test.setTimeout(180_000);
+    await captureAll(page, "desktop-");
+  });
 });

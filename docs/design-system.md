@@ -65,7 +65,12 @@ Phase2 でこの2段+入力欄用の計3段に標準化する。
 
 ## レイアウト
 
-- モバイルファースト。PC は中央寄せ＋コンテンツ幅制限で対応（Phase3 / #81）
+- モバイルファースト。PC は中央寄せ＋コンテンツ幅制限で対応
+  - 基本コンテンツ幅: `max-w-lg`（512px）
+  - グラフ画面のみ `max-w-3xl`（768px）
+  - ヘッダーは `PageHeader` の `containerClassName` で本文と同じ幅に揃える
+  - ホームの FAB はコンテンツカラムの右端に追従
+    （`right-[max(1.25rem,calc(50%-14.75rem))]`）
 - 画面ヘッダーは `components/ui/page-header.tsx`（PageHeader）を使う
 - 読み込み中・空状態・エラーは `components/ui/status.tsx`
   （LoadingText / EmptyMessage / ErrorBanner）を使う

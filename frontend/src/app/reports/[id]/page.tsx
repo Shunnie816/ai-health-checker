@@ -44,7 +44,7 @@ function ReportDetailContent({ id }: { id: string }) {
       />
 
       {/* Report body */}
-      <div className="px-5 pb-10 pt-4">
+      <div className="mx-auto w-full max-w-lg px-5 pb-10 pt-4">
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-fg">
           {report.content}
         </p>

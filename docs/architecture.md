@@ -9,7 +9,7 @@
 [Cloud Run]
   FastAPI (Python)
   ├── Firestore (Firebase Admin SDK)  ← CRUD
-  ├── Dify API                        ← AI 分析
+  ├── Claude API                      ← AI 分析
   └── Email 通知                      ← リマインダー・レポート配信
           ↑ 定期トリガー
 [Cloud Scheduler]
@@ -30,7 +30,7 @@
 ### AI 分析（手動 or 定期）
 
 ```
-Cloud Scheduler / 手動 → FastAPI → Firestore（ログ取得）→ Dify API → Firestore（レポート保存）→ Email 送信
+Cloud Scheduler / 手動 → FastAPI → Firestore（ログ取得）→ Claude API → Firestore（レポート保存）→ Email 送信
 ```
 
 #### 詳細フロー（実装: `backend/src/ai_health_checker/services/analysis_service.py`）
@@ -57,8 +57,8 @@ flowchart TD
     single --> logs["log_service.list_logs<br/>Firestore: users/uid/logs<br/>期間未指定時は直近30日"]
     logs -->|ログ0件| skip["ValueError<br/>手動実行:404 / 定期実行:該当ユーザーをスキップ"]
     logs -->|ログあり| prompt["_build_prompt<br/>ログをテキスト要約に変換"]
-    prompt --> dify["dify_service.generate_analysis_report<br/>Dify /v1/chat-messages"]
-    dify --> save["Firestoreに保存<br/>users/uid/reports/report_id"]
+    prompt --> llm["llm_service.generate_analysis_report<br/>Claude API（claude-haiku-4-5）"]
+    llm --> save["Firestoreに保存<br/>users/uid/reports/report_id"]
     save --> lookup["get_user_email<br/>Firebase Admin Auth"]
     lookup -->|メールあり| send["email_service.send_report_email<br/>SMTP送信（SMTP_HOST未設定時はスキップ）"]
     lookup -->|メールなし| noSend["送信スキップ"]
@@ -106,7 +106,7 @@ Cloud Scheduler → POST /reminders/run（X-Scheduler-Key、#12 と共通の ver
 | フロントホスティング | Firebase App Hosting | Next.js ネイティブ対応 |
 | バックエンドホスティング | Cloud Run | FastAPI コンテナをそのまま動かせる唯一の Firebase エコシステム選択肢 |
 | DB | Firestore | Firebase Admin SDK で FastAPI から操作 |
-| AI 連携 | Dify API（REST） | 手動実行 + Cloud Scheduler による定期実行の両対応 |
+| AI 連携 | Anthropic Claude API（anthropic SDK 直接呼び出し） | RAG は現時点で不要と判断し Dify を廃止（2026-07）。ユースケース上必要になった場合のみ再導入する |
 | AI 出力形式 | テキストレポート（グラフ付き） | 将来チャット機能を追加予定 |
 | 通知 | Email | 入力リマインダー + 分析レポート配信 |
 | UI ライブラリ | 未定（後で検討） | — |

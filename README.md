@@ -4,7 +4,7 @@
 
 ## 概要
 
-毎日の気分・疲労・勤務時間などを記録し、AI（Dify RAG）による分析で  
+毎日の気分・疲労・勤務時間などを記録し、AI（Claude API）による分析で  
 「幸福度が高い日の共通点」「疲労の傾向」「残業と体調の関係」などを可視化する。
 
 ## アーキテクチャ
@@ -14,7 +14,7 @@ Firebase App Hosting（Next.js）
         ↓ Firebase Auth token
 Cloud Run（FastAPI）
   ├── Firestore    ← CRUD
-  ├── Dify API     ← AI 分析
+  ├── Claude API   ← AI 分析
   └── Email        ← 通知
 ```
 
@@ -26,7 +26,7 @@ Cloud Run（FastAPI）
 | バックエンド | Python / FastAPI |
 | 認証 | Firebase Auth |
 | データベース | Firestore |
-| AI | Dify / RAG |
+| AI | Anthropic Claude API（claude-haiku-4-5） |
 | インフラ | Cloud Run / Firebase App Hosting |
 
 ## セットアップ

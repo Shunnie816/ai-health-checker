@@ -17,7 +17,7 @@ export function ColoredSlider({ min, max, value, onChange, color, minLabel, maxL
   return (
     <div>
       <div className="relative flex h-9 items-center">
-        <div className="absolute inset-x-0 h-1 overflow-hidden rounded-full bg-[var(--color-surface-2)]">
+        <div className="absolute inset-x-0 h-1 overflow-hidden rounded-full bg-surface-2">
           <div style={{ width: pct, background: color }} className="absolute left-0 h-full" />
         </div>
         <div
@@ -36,11 +36,11 @@ export function ColoredSlider({ min, max, value, onChange, color, minLabel, maxL
       </div>
       {(minLabel !== undefined || maxLabel !== undefined) && (
         <div className="mt-1.5 flex justify-between">
-          <span className="text-[11px] text-[var(--color-text-muted)]">{minLabel}</span>
+          <span className="text-xs text-fg-muted">{minLabel}</span>
           {midLabel !== undefined && (
-            <span className="text-[11px] text-[var(--color-text-muted)]">{midLabel}</span>
+            <span className="text-xs text-fg-muted">{midLabel}</span>
           )}
-          <span className="text-[11px] text-[var(--color-text-muted)]">{maxLabel}</span>
+          <span className="text-xs text-fg-muted">{maxLabel}</span>
         </div>
       )}
     </div>

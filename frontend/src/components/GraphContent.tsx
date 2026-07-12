@@ -33,25 +33,22 @@ export function GraphContent() {
   const { points, period, setPeriod, loading, error } = useGraph(graphApi);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
+    <div className="flex min-h-screen flex-col bg-canvas">
 
       <PageHeader title="グラフ" subtitle="トレンド可視化" backHref="/" />
 
       <div className="flex flex-col gap-3 px-4 pb-10 pt-3">
 
         {/* Period selector */}
-        <div className="flex rounded-full border border-[var(--color-border)] bg-[var(--color-surface-1)] p-0.5">
+        <div className="flex rounded-full border border-border bg-surface-1 p-0.5">
           {PERIOD_OPTIONS.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => setPeriod(option.value)}
-              className="flex-1 rounded-full py-1.5 text-[13px] font-medium transition-colors"
-              style={
-                period === option.value
-                  ? { background: "var(--color-primary)", color: "white" }
-                  : { color: "var(--color-text-secondary)" }
-              }
+              className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
+                period === option.value ? "bg-primary text-white" : "text-fg-secondary"
+              }`}
             >
               {option.label}
             </button>
@@ -84,13 +81,13 @@ function ChartCard({ title, legend, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] p-4">
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-1 p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-[var(--color-text-primary)]">{title}</h2>
+        <h2 className="text-sm font-medium text-fg">{title}</h2>
         {legend && (
           <div className="flex items-center gap-3">
             {legend.map(({ color, label }) => (
-              <span key={label} className="flex items-center gap-1 text-[11px] text-[var(--color-text-muted)]">
+              <span key={label} className="flex items-center gap-1 text-xs text-fg-muted">
                 <span className="h-2 w-2 rounded-full" style={{ background: color }} />
                 {label}
               </span>

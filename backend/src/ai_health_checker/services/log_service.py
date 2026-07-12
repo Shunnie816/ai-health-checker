@@ -68,7 +68,9 @@ def update_log(
         raise ValueError(f"Log {log_id} not found")
 
     current = LogInDB(**doc.to_dict())
-    updates = payload.model_dump(exclude_none=True)
+    # exclude_unset: 明示的な null はフィールドのクリア（休日切替時の勤務時間など）、
+    # 未送信は変更なし。exclude_none だと平日→休日の切替で勤務系を消せない
+    updates = payload.model_dump(exclude_unset=True)
     merged = current.model_dump()
     merged.update(updates)
     merged["updated_at"] = datetime.now(timezone.utc)

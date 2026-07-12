@@ -86,6 +86,13 @@ class LogInDB(Log):
 
 
 class LogUpdate(BaseModel):
+    """ログの部分更新。date のみ変更不可（日付重複ガードの前提を守る）。
+
+    exclude_unset で処理されるため、明示的に null を送ったフィールドは
+    クリアされ、送らなかったフィールドは変更されない。
+    """
+
+    is_holiday: bool | None = None
     mood_morning: int | None = Field(default=None, ge=-5, le=5)
     mood_after_work: int | None = Field(default=None, ge=-5, le=5)
     fatigue: int | None = Field(default=None, ge=1, le=5)

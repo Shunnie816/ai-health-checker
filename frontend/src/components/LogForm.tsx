@@ -170,12 +170,14 @@ export function LogForm({ existingLog }: Props) {
         {/* Date + Holiday */}
         <Card className="flex flex-col gap-0 p-0 overflow-hidden">
           <FormRow label="日付">
+            {/* 日付はログの識別子のため編集時は変更不可（バックエンドも受け付けない） */}
             <input
               type="date"
               value={fields.date}
               onChange={(e) => setField("date", e.target.value)}
               required
-              className="cursor-pointer bg-transparent py-3.5 text-right text-sm text-fg outline-none"
+              disabled={!!existingLog}
+              className="cursor-pointer bg-transparent py-3.5 text-right text-sm text-fg outline-none disabled:cursor-default disabled:opacity-60"
             />
           </FormRow>
           <Divider />

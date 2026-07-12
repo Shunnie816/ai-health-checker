@@ -41,7 +41,7 @@ export type LogCreatePayload = {
   gym: boolean;
 };
 
-export type LogUpdatePayload = Partial<Omit<LogCreatePayload, "date" | "is_holiday">>;
+export type LogUpdatePayload = Partial<Omit<LogCreatePayload, "date">>;
 
 export type LogRecord = LogCreatePayload & {
   id: string;

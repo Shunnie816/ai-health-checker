@@ -115,3 +115,99 @@ class TestUpdateLog:
 
         assert result.fatigue == 5
         assert result.mood_morning == 3
+
+    def test_should_update_holiday_flag_to_false_and_compute_overtime(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data(
+            is_holiday=True,
+            mood_after_work=None,
+            work_start=None,
+            work_end=None,
+            overtime_minutes=None,
+            overtime_score=None,
+        )
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = db_data
+
+        from ai_health_checker.models.log import LogUpdate
+
+        result = log_service.update_log(
+            mock_db,
+            TEST_USER_ID,
+            TEST_LOG_ID,
+            LogUpdate(
+                is_holiday=False,
+                mood_after_work=1,
+                work_start="09:00",
+                work_end="19:30",
+            ),
+        )
+
+        assert result.is_holiday is False
+        assert result.overtime_minutes == 90
+        assert result.overtime_score == 3
+
+    def test_should_update_holiday_flag_to_true_and_clear_work_fields(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data(overtime_minutes=90, overtime_score=3)
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = db_data
+
+        from ai_health_checker.models.log import LogUpdate
+
+        result = log_service.update_log(
+            mock_db,
+            TEST_USER_ID,
+            TEST_LOG_ID,
+            LogUpdate(
+                is_holiday=True,
+                mood_after_work=None,
+                work_start=None,
+                work_end=None,
+                work_content=None,
+            ),
+        )
+
+        assert result.is_holiday is True
+        assert result.work_start is None
+        assert result.work_end is None
+        assert result.overtime_minutes is None
+        assert result.overtime_score is None
+
+    def test_should_not_change_fields_that_are_not_sent(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data(comment="既存コメント")
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = db_data
+
+        from ai_health_checker.models.log import LogUpdate
+
+        result = log_service.update_log(
+            mock_db, TEST_USER_ID, TEST_LOG_ID, LogUpdate(fatigue=4)
+        )
+
+        assert result.comment == "既存コメント"
+        assert result.work_start == "09:00"
+
+    def test_should_raise_validation_error_when_workday_lacks_work_fields(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data()
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = db_data
+
+        from pydantic import ValidationError
+
+        from ai_health_checker.models.log import LogUpdate
+
+        with pytest.raises(ValidationError):
+            log_service.update_log(
+                mock_db, TEST_USER_ID, TEST_LOG_ID, LogUpdate(work_start=None)
+            )

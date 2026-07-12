@@ -127,6 +127,27 @@ EMAIL_FROM=
 
 ---
 
+## リリース運用
+
+機能追加・バグ修正の PR が main へマージされたら、タグと GitHub Release を作成する。
+
+- **バージョニング**: Semantic Versioning（`vX.Y.Z`）
+  - 破壊的変更（データモデル・API の非互換変更）→ **major**
+  - 機能追加（`feat`）→ **minor**
+  - バグ修正・その他（`fix` / `chore` / `refactor` / `docs`）→ **patch**
+- **タイミング**: マージごとに毎回打つ必要はなく、ユーザー影響のあるまとまりで打つ。複数 PR をまとめて1リリースにしてよい
+- **手順**（main の最新を取り込んだ状態で実行）:
+
+```bash
+git log $(git describe --tags --abbrev=0)..origin/main --oneline  # 前回タグ以降の変更を確認
+gh release create vX.Y.Z --target main --title "vX.Y.Z" --generate-notes
+```
+
+- リリースノートは `--generate-notes` を基本とし、ユーザー向けの補足があれば日本語で追記する
+- Claude は main へのマージを確認したら、リリース作成をユーザーに提案するか、指示があれば作成まで行う
+
+---
+
 ## 開発方針
 
 - **優先順位**: データ入力・蓄積 → 分析機能

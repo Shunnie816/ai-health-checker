@@ -87,6 +87,7 @@ async function captureAll(page: Page, prefix: string): Promise<void> {
   await page.locator('a[href="/reports/seed-report-1"]').click();
   await expect(page).toHaveURL(/\/reports\/seed-report-1/, { timeout: 15_000 });
   await expect(page.getByText("対象ログ 3 件")).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(1500); // recharts 描画待ち
   await page.screenshot({ path: `${SHOT_DIR}/${prefix}report-detail.png`, fullPage: true });
 }
 

@@ -76,8 +76,17 @@ export async function deleteLog(id: string): Promise<void> {
   if (!res.ok) throw new Error(`Failed to delete log: ${res.status}`);
 }
 
-export async function listLogs(): Promise<LogRecord[]> {
-  const res = await fetchWithAuth("/logs");
+export type LogListParams = {
+  startDate?: string;
+  endDate?: string;
+};
+
+export async function listLogs(params?: LogListParams): Promise<LogRecord[]> {
+  const query = new URLSearchParams();
+  if (params?.startDate) query.set("start_date", params.startDate);
+  if (params?.endDate) query.set("end_date", params.endDate);
+  const qs = query.toString();
+  const res = await fetchWithAuth(qs ? `/logs?${qs}` : "/logs");
   if (!res.ok) throw new Error(`Failed to list logs: ${res.status}`);
   return res.json();
 }

@@ -24,27 +24,25 @@ export default function LoginPage() {
   if (loading || user) return null;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-[var(--color-bg)] px-6">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-canvas px-6">
       {/* App icon */}
       <div
-        className="mb-2 flex h-12 w-12 items-center justify-center rounded-[14px]"
-        style={{ background: "var(--color-primary)" }}
+        className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="white" />
         </svg>
       </div>
 
-      <h1 className="-tracking-[0.5px] text-2xl font-semibold text-[var(--color-text-primary)]">
+      <h1 className="tracking-tight text-2xl font-semibold text-fg">
         HealthLog
       </h1>
-      <p className="mb-6 text-sm text-[var(--color-text-muted)]">毎日の記録を続けよう</p>
+      <p className="mb-6 text-sm text-fg-muted">毎日の記録を続けよう</p>
 
       <button
         type="button"
         onClick={handleSignIn}
-        className="flex items-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] px-6 py-3.5 text-[15px] font-medium text-[var(--color-text-primary)] shadow-sm transition-opacity hover:opacity-80"
-        style={{ fontFamily: "inherit", cursor: "pointer" }}
+        className="flex items-center gap-2.5 rounded-xl border border-border bg-surface-1 px-6 py-3.5 text-base font-medium text-fg shadow-sm transition-opacity hover:opacity-80 cursor-pointer"
       >
         <svg width="18" height="18" viewBox="0 0 18 18">
           <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />

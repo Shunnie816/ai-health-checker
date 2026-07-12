@@ -23,7 +23,7 @@ export function HomeContent() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
+    <div className="flex min-h-screen flex-col bg-canvas">
 
       <PageHeader
         title="HealthLog"
@@ -32,23 +32,26 @@ export function HomeContent() {
           <>
             <Link
               href="/graph"
-              className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
+              className="whitespace-nowrap rounded-full border border-border px-3.5 py-1.5 text-sm text-fg-secondary transition-colors hover:bg-surface-1"
             >
               グラフ
             </Link>
             <Link
               href="/reports"
-              className="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white"
-              style={{ background: "var(--color-primary)" }}
+              className="whitespace-nowrap rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-white"
             >
               AI分析
             </Link>
             <button
               type="button"
               onClick={() => signOut(auth)}
-              className="rounded-full border border-[var(--color-border)] px-3.5 py-1.5 text-[13px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-1)]"
+              aria-label="ログアウト"
+              title="ログアウト"
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-fg-secondary transition-colors hover:bg-surface-1"
             >
-              ログアウト
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10.5 11l3-3-3-3M13.5 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </button>
           </>
         }
@@ -71,8 +74,7 @@ export function HomeContent() {
       <Link
         href="/logs/new"
         aria-label="新規記録"
-        className="fixed bottom-7 right-5 flex h-14 w-14 items-center justify-center rounded-full text-[28px] leading-none text-white shadow-xl"
-        style={{ background: "var(--color-primary)" }}
+        className="fixed bottom-7 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-3xl leading-none text-white shadow-xl"
       >
         +
       </Link>
@@ -88,15 +90,15 @@ function LogCard({ log }: { log: LogRecord }) {
   return (
     <Link
       href={`/logs/${log.id}/edit`}
-      className="flex flex-col gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)] p-4 no-underline"
+      className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface-1 p-4 no-underline"
     >
       {/* Row 1: date + badge + chevron */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">
+          <span className="text-sm font-medium text-fg">
             {formatDate(log.date)}
           </span>
-          <span className="rounded-full bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--color-text-muted)]">
+          <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-xs font-medium text-fg-muted">
             {log.is_holiday ? "休日" : "平日"}
           </span>
         </div>
@@ -106,12 +108,12 @@ function LogCard({ log }: { log: LogRecord }) {
       {/* Row 2: mood / fatigue / overtime */}
       <div className="flex items-center">
         <Metric label="朝の気分" color={moodColor} value={formatMood(log.mood_morning)} />
-        <div className="mx-0 h-[30px] w-px shrink-0 bg-[var(--color-border)]" />
+        <div className="mx-0 h-[30px] w-px shrink-0 bg-border" />
         <Metric label="疲れ度" color={fatigueColor} value={String(log.fatigue)} indent />
-        <div className="mx-0 h-[30px] w-px shrink-0 bg-[var(--color-border)]" />
+        <div className="mx-0 h-[30px] w-px shrink-0 bg-border" />
         <div className="flex flex-1 flex-col gap-0.5 pl-3.5">
-          <span className="text-[11px] text-[var(--color-text-muted)]">残業スコア</span>
-          <span className="text-[15px] font-semibold" style={{ color: overtimeColor }}>
+          <span className="text-xs text-fg-muted">残業スコア</span>
+          <span className="text-base font-semibold" style={{ color: overtimeColor }}>
             {log.overtime_score !== null ? log.overtime_score : "—"}
           </span>
         </div>
@@ -119,12 +121,12 @@ function LogCard({ log }: { log: LogRecord }) {
 
       {/* Row 3: work time */}
       {!log.is_holiday && log.work_start && log.work_end && (
-        <div className="flex items-center gap-1.5 border-t border-[var(--color-border)] pt-2">
+        <div className="flex items-center gap-1.5 border-t border-border pt-2">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="shrink-0 opacity-45">
             <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" />
             <path d="M6 3.5V6l2 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>
-          <span className="text-xs text-[var(--color-text-muted)]">
+          <span className="text-xs text-fg-muted">
             {log.work_start} – {log.work_end}
           </span>
         </div>
@@ -136,10 +138,10 @@ function LogCard({ log }: { log: LogRecord }) {
 function Metric({ label, color, value, indent }: { label: string; color: string; value: string; indent?: boolean }) {
   return (
     <div className={`flex flex-1 flex-col gap-0.5 ${indent ? "pl-3.5" : ""}`}>
-      <span className="text-[11px] text-[var(--color-text-muted)]">{label}</span>
+      <span className="text-xs text-fg-muted">{label}</span>
       <div className="flex items-center gap-1.5">
         <div className="h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
-        <span className="text-[15px] font-semibold" style={{ color }}>{value}</span>
+        <span className="text-base font-semibold" style={{ color }}>{value}</span>
       </div>
     </div>
   );

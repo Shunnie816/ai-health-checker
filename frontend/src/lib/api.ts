@@ -33,7 +33,7 @@ export type LogCreatePayload = {
   is_holiday: boolean;
   mood_morning: number;
   mood_after_work: number | null;
-  fatigue: number;
+  fatigue: number | null;
   comment: string | null;
   work_content: string | null;
   work_start: string | null;

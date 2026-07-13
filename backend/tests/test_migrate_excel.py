@@ -58,7 +58,12 @@ class TestRowToLogCreate:
         self,
     ) -> None:
         with pytest.raises(ValidationError):
-            row_to_log_create(make_row(fatigue=NAN))
+            row_to_log_create(make_row(mood_morning=NAN))
+
+    def test_should_convert_row_without_fatigue(self) -> None:
+        payload = row_to_log_create(make_row(fatigue=NAN))
+
+        assert payload.fatigue is None
 
 
 class TestMigrateRows:
@@ -108,7 +113,7 @@ class TestMigrateRows:
     def test_should_record_invalid_rows_with_reason_and_continue(
         self, mock_deps: dict[str, MagicMock]
     ) -> None:
-        rows = [make_row(fatigue=NAN), make_row(date=datetime(2023, 4, 4))]
+        rows = [make_row(mood_morning=NAN), make_row(date=datetime(2023, 4, 4))]
 
         result = migrate_rows(MagicMock(), TEST_USER_ID, rows, execute=True)
 

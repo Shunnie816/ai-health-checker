@@ -57,6 +57,7 @@ describe("calcOvertime", () => {
 const validWeekdayBase = {
   date: "2026-06-26",
   is_holiday: false,
+  morning_only: false,
   mood_morning: 0,
   mood_after_work: 1,
   fatigue: 3,
@@ -65,6 +66,13 @@ const validWeekdayBase = {
   work_start: "09:00",
   work_end: "18:00",
   gym: false,
+};
+
+const validMorningOnlyBase = {
+  ...validWeekdayBase,
+  morning_only: true,
+  mood_after_work: null,
+  work_end: "",
 };
 
 const validHolidayBase = {
@@ -121,6 +129,21 @@ describe("logFormSchema — 平日バリデーション", () => {
   it("should fail when fatigue is out of range", () => {
     const result = logFormSchema.safeParse({ ...validWeekdayBase, fatigue: 0 });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("logFormSchema — 朝のみモードのバリデーション", () => {
+  it("should pass validation without work_end and mood_after_work in morning-only mode", () => {
+    expect(logFormSchema.safeParse(validMorningOnlyBase).success).toBe(true);
+  });
+
+  it("should fail when work_start is missing even in morning-only mode", () => {
+    const result = logFormSchema.safeParse({ ...validMorningOnlyBase, work_start: "" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const paths = result.error.issues.map((i) => i.path[0]);
+      expect(paths).toContain("work_start");
+    }
   });
 });
 
@@ -187,5 +210,26 @@ describe("useLogForm", () => {
     });
 
     expect(result.current.fields.fatigue).toBe(5);
+  });
+
+  it("should default to full-day mode", () => {
+    const { result } = renderHook(() => useLogForm());
+    expect(result.current.fields.morning_only).toBe(false);
+  });
+
+  it("should restore default mood_after_work when switching from morning-only to full-day mode", () => {
+    const mockInitial = {
+      is_holiday: false,
+      morning_only: true,
+      mood_after_work: null,
+    };
+    const { result } = renderHook(() => useLogForm(mockInitial));
+
+    act(() => {
+      result.current.setField("morning_only", false);
+    });
+
+    expect(result.current.fields.morning_only).toBe(false);
+    expect(result.current.fields.mood_after_work).toBe(0);
   });
 });

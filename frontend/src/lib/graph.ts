@@ -2,7 +2,7 @@ export type GraphSourceLog = {
   date: string;
   mood_morning: number;
   mood_after_work: number | null;
-  fatigue: number;
+  fatigue: number | null;
   overtime_score: number | null;
 };
 

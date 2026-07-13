@@ -149,6 +149,34 @@ class TestUpdateLog:
         assert result.overtime_minutes == 90
         assert result.overtime_score == 3
 
+    def test_should_complete_morning_partial_log_and_compute_overtime(
+        self, mock_db: MagicMock
+    ) -> None:
+        db_data = make_workday_db_data(
+            mood_after_work=None,
+            fatigue=None,
+            work_end=None,
+            overtime_minutes=None,
+            overtime_score=None,
+        )
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = db_data
+
+        from ai_health_checker.models.log import LogUpdate
+
+        result = log_service.update_log(
+            mock_db,
+            TEST_USER_ID,
+            TEST_LOG_ID,
+            LogUpdate(mood_after_work=-1, fatigue=4, work_end="19:30"),
+        )
+
+        assert result.fatigue == 4
+        assert result.mood_after_work == -1
+        assert result.overtime_minutes == 90
+        assert result.overtime_score == 3
+
     def test_should_update_holiday_flag_to_true_and_clear_work_fields(
         self, mock_db: MagicMock
     ) -> None:

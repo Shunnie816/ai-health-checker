@@ -41,6 +41,7 @@ export function calcOvertime(work_start: string, work_end: string): OvertimePrev
 const DEFAULT_VALUES: LogFormValues = {
   date: todayString(),
   is_holiday: false,
+  morning_only: false,
   mood_morning: 0,
   mood_after_work: 0,
   fatigue: 3,
@@ -72,6 +73,12 @@ export function useLogForm(initial?: Partial<LogFormValues>) {
         if (form.getValues("mood_after_work") === null) {
           setValue("mood_after_work", 0);
         }
+      }
+    }
+    // 朝のみ→1日分へ切り替えたとき、未入力の夕方項目にデフォルト値を補う
+    if (key === "morning_only" && value === false) {
+      if (!form.getValues("is_holiday") && form.getValues("mood_after_work") === null) {
+        setValue("mood_after_work", 0);
       }
     }
     setValue(key, value as never);

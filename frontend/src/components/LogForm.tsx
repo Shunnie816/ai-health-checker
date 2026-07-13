@@ -32,13 +32,17 @@ export function LogForm({ existingLog }: Props) {
   const [apiError, setApiError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // fatigue が null = 朝の分だけ記録された未完成ログ（勤務終了後の項目が未入力）
+  const isIncompleteLog = existingLog ? existingLog.fatigue === null : false;
+
   const initial: Partial<LogFormValues> | undefined = existingLog
     ? {
         date: existingLog.date,
         is_holiday: existingLog.is_holiday,
+        morning_only: isIncompleteLog,
         mood_morning: existingLog.mood_morning,
         mood_after_work: existingLog.mood_after_work,
-        fatigue: existingLog.fatigue,
+        fatigue: existingLog.fatigue ?? 3,
         comment: existingLog.comment ?? "",
         work_content: existingLog.work_content ?? "",
         work_start: existingLog.work_start ?? "",
@@ -66,17 +70,21 @@ export function LogForm({ existingLog }: Props) {
     setSubmitting(true);
     setApiError(null);
     try {
+      // 朝のみモードでは勤務終了後にしか分からない項目を未入力(null)として保存する
+      const morning = data.morning_only;
       const payload = {
         date: data.date,
         is_holiday: data.is_holiday,
         mood_morning: data.mood_morning,
-        mood_after_work: data.is_holiday ? null : (data.mood_after_work ?? 0),
-        fatigue: data.fatigue,
+        mood_after_work:
+          data.is_holiday || morning ? null : (data.mood_after_work ?? 0),
+        fatigue: morning ? null : data.fatigue,
         comment: toNullableStr(data.comment),
-        work_content: data.is_holiday ? null : toNullableStr(data.work_content),
+        work_content:
+          data.is_holiday || morning ? null : toNullableStr(data.work_content),
         work_start: data.is_holiday ? null : toNullableStr(data.work_start),
-        work_end: data.is_holiday ? null : toNullableStr(data.work_end),
-        gym: data.gym,
+        work_end: data.is_holiday || morning ? null : toNullableStr(data.work_end),
+        gym: morning ? false : data.gym,
       };
       if (existingLog) {
         await updateLog(existingLog.id, payload);
@@ -167,6 +175,29 @@ export function LogForm({ existingLog }: Props) {
           </div>
         )}
 
+        {/* Entry mode: 朝のうちは朝の分だけ記録し、勤務終了後に追記できる */}
+        {(!existingLog || isIncompleteLog) && (
+          <div className="flex rounded-full border border-border bg-surface-1 p-0.5">
+            {([
+              { value: false, label: "1日分" },
+              { value: true, label: "朝のみ" },
+            ] as const).map((option) => (
+              <button
+                key={option.label}
+                type="button"
+                onClick={() => setField("morning_only", option.value)}
+                className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
+                  fields.morning_only === option.value
+                    ? "bg-primary text-white"
+                    : "text-fg-secondary"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Date + Holiday */}
         <Card className="flex flex-col gap-0 p-0 overflow-hidden">
           <FormRow label="日付">
@@ -206,40 +237,46 @@ export function LogForm({ existingLog }: Props) {
                 <span className="text-sm font-medium text-fg-secondary">開始</span>
                 <input type="time" value={fields.work_start} onChange={(e) => setField("work_start", e.target.value)} required={!fields.is_holiday} className="cursor-pointer bg-transparent text-right text-sm text-fg outline-none" />
               </div>
-              <Divider />
-              <div className="flex items-center justify-between px-4 py-3.5">
-                <span className="text-sm font-medium text-fg-secondary">終了</span>
-                <input type="time" value={fields.work_end} onChange={(e) => setField("work_end", e.target.value)} required={!fields.is_holiday} className="cursor-pointer bg-transparent text-right text-sm text-fg outline-none" />
-              </div>
-              <Divider />
-              <div className="flex items-center justify-between px-4 py-3.5">
-                <span className="text-sm font-medium text-fg-secondary">残業スコア</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-semibold tracking-tight" style={{ color: overtimeColor }}>
-                    {overtimePreview ? overtimePreview.score : "—"}
-                  </span>
-                  <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-xs font-medium text-fg-muted">
-                    自動
-                  </span>
-                </div>
-              </div>
+              {!fields.morning_only && (
+                <>
+                  <Divider />
+                  <div className="flex items-center justify-between px-4 py-3.5">
+                    <span className="text-sm font-medium text-fg-secondary">終了</span>
+                    <input type="time" value={fields.work_end} onChange={(e) => setField("work_end", e.target.value)} required={!fields.is_holiday && !fields.morning_only} className="cursor-pointer bg-transparent text-right text-sm text-fg outline-none" />
+                  </div>
+                  <Divider />
+                  <div className="flex items-center justify-between px-4 py-3.5">
+                    <span className="text-sm font-medium text-fg-secondary">残業スコア</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-semibold tracking-tight" style={{ color: overtimeColor }}>
+                        {overtimePreview ? overtimePreview.score : "—"}
+                      </span>
+                      <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-xs font-medium text-fg-muted">
+                        自動
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </Card>
           </>
         )}
 
         {/* Fatigue */}
-        <Card>
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium text-fg-secondary">疲れ度</span>
-            <span className="text-2xl font-semibold" style={{ color: fatigueColor }}>
-              {fields.fatigue}
-            </span>
-          </div>
-          <ColoredSlider min={1} max={5} value={fields.fatigue} onChange={(v) => setField("fatigue", v)} color={fatigueColor} minLabel="1 快適" maxLabel="5 疲弊" />
-        </Card>
+        {!fields.morning_only && (
+          <Card>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-sm font-medium text-fg-secondary">疲れ度</span>
+              <span className="text-2xl font-semibold" style={{ color: fatigueColor }}>
+                {fields.fatigue}
+              </span>
+            </div>
+            <ColoredSlider min={1} max={5} value={fields.fatigue} onChange={(v) => setField("fatigue", v)} color={fatigueColor} minLabel="1 快適" maxLabel="5 疲弊" />
+          </Card>
+        )}
 
         {/* Work-end mood + work content */}
-        {!fields.is_holiday && (
+        {!fields.is_holiday && !fields.morning_only && (
           <>
             <Card>
               <div className="mb-4 flex items-center justify-between">
@@ -264,12 +301,14 @@ export function LogForm({ existingLog }: Props) {
         )}
 
         {/* Gym */}
-        <Card className="flex flex-col gap-0 p-0 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3.5">
-            <span className="text-sm font-medium text-fg-secondary">ジムに行った</span>
-            <Toggle checked={fields.gym} onChange={(v) => setField("gym", v)} />
-          </div>
-        </Card>
+        {!fields.morning_only && (
+          <Card className="flex flex-col gap-0 p-0 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3.5">
+              <span className="text-sm font-medium text-fg-secondary">ジムに行った</span>
+              <Toggle checked={fields.gym} onChange={(v) => setField("gym", v)} />
+            </div>
+          </Card>
+        )}
 
         {/* Comment */}
         <Card>
@@ -288,7 +327,13 @@ export function LogForm({ existingLog }: Props) {
           disabled={submitting || !!existingLogIdForDate}
           className="mt-1 w-full cursor-pointer rounded-xl bg-primary py-3.5 text-base font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? "保存中..." : existingLog ? "保存する" : "記録する"}
+          {submitting
+            ? "保存中..."
+            : existingLog
+              ? "保存する"
+              : fields.morning_only
+                ? "朝の分を記録する"
+                : "記録する"}
         </button>
       </form>
 

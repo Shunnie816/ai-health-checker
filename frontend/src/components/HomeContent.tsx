@@ -101,6 +101,11 @@ function LogCard({ log }: { log: LogRecord }) {
           <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-xs font-medium text-fg-muted">
             {log.is_holiday ? "休日" : "平日"}
           </span>
+          {log.fatigue === null && (
+            <span className="rounded-full bg-primary-subtle px-1.5 py-0.5 text-xs font-medium text-primary">
+              追記待ち
+            </span>
+          )}
         </div>
         <ChevronRightIcon />
       </div>
@@ -109,7 +114,7 @@ function LogCard({ log }: { log: LogRecord }) {
       <div className="flex items-center">
         <Metric label="朝の気分" color={moodColor} value={formatMood(log.mood_morning)} />
         <div className="mx-0 h-[30px] w-px shrink-0 bg-border" />
-        <Metric label="疲れ度" color={fatigueColor} value={String(log.fatigue)} indent />
+        <Metric label="疲れ度" color={fatigueColor} value={log.fatigue !== null ? String(log.fatigue) : "—"} indent />
         <div className="mx-0 h-[30px] w-px shrink-0 bg-border" />
         <div className="flex flex-1 flex-col gap-0.5 pl-3.5">
           <span className="text-xs text-fg-muted">残業スコア</span>

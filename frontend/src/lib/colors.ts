@@ -16,7 +16,8 @@ export function getEmotionColor(v: number): string {
   return emotionMap[v] ?? "var(--color-emotion-0)";
 }
 
-export function getFatigueColor(v: number): string {
+export function getFatigueColor(v: number | null): string {
+  if (v === null) return "var(--color-text-muted)";
   return `var(--color-fatigue-${Math.max(1, Math.min(5, v))})`;
 }
 

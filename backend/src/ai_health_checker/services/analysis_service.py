@@ -35,13 +35,14 @@ def _build_prompt(logs: list[LogInDB], start_date: str, end_date: str) -> str:
         mood_after_work = (
             log.mood_after_work if log.mood_after_work is not None else "-"
         )
+        fatigue = log.fatigue if log.fatigue is not None else "-"
         overtime_score = (
             log.overtime_score if log.overtime_score is not None else "-"
         )
         lines.append(
             f"- {log.date}: 朝の気分{log.mood_morning} "
             f"終業後の気分{mood_after_work} "
-            f"疲労度{log.fatigue} "
+            f"疲労度{fatigue} "
             f"残業スコア{overtime_score} "
             f"ジム{'あり' if log.gym else 'なし'} "
             f"コメント{log.comment or 'なし'}"

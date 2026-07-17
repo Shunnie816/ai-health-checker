@@ -7,7 +7,7 @@ import { LogTrendCharts } from "@/components/LogCharts";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyMessage, ErrorBanner, LoadingText } from "@/components/ui/status";
 
-// 参照を安定させるためモジュールレベルで生成する（useGraph の effect 再実行防止）
+// テストで差し替えられるよう DI で渡す（参照安定のためモジュールレベルで生成）
 const graphApi: GraphApi = { listLogs };
 
 export function GraphContent() {
@@ -38,7 +38,7 @@ export function GraphContent() {
 
         {error && <ErrorBanner>{error}</ErrorBanner>}
 
-        {loading ? (
+        {loading && points.length === 0 ? (
           <LoadingText />
         ) : points.length === 0 && !error ? (
           <EmptyMessage>

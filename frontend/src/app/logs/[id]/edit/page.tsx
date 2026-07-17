@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AuthGuard } from "@/components/AuthGuard";
 import { LogForm } from "@/components/LogForm";
 import { LoadingText } from "@/components/ui/status";
-import { listLogs, LogRecord } from "@/lib/api";
+import { getLog, LogRecord } from "@/lib/api";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -17,15 +17,15 @@ function EditLogContent({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listLogs()
-      .then((logs) => {
-        const found = logs.find((l) => l.id === id);
+    getLog(id)
+      .then((found) => {
         if (!found) {
           router.replace("/");
           return;
         }
         setLog(found);
       })
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, [id, router]);
 

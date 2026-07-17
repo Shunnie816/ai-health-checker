@@ -32,6 +32,14 @@ function cutoffDate(period: Exclude<Period, "all">, today: string): string {
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
+/**
+ * 期間の開始日 (YYYY-MM-DD) を返す。"all" は全期間のため undefined。
+ * API の start_date にそのまま渡して取得範囲を絞り込める。
+ */
+export function periodStartDate(period: Period, today: string): string | undefined {
+  return period === "all" ? undefined : cutoffDate(period, today);
+}
+
 function toLabel(date: string): string {
   const d = new Date(date + "T00:00:00");
   return `${d.getMonth() + 1}/${d.getDate()}`;

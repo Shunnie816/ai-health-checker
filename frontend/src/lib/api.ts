@@ -1,9 +1,9 @@
 import { getIdToken } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { DuplicateDateError, NoLogsError } from "@/lib/errors";
-import { AnalysisReport } from "@/lib/reports";
+import { AnalysisReport, AnalysisRunParams } from "@/lib/reports";
 
-export type { AnalysisReport };
+export type { AnalysisReport, AnalysisRunParams };
 export { DuplicateDateError, NoLogsError };
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
@@ -104,8 +104,14 @@ export async function listReports(): Promise<AnalysisReport[]> {
   return res.json();
 }
 
-export async function runAnalysis(): Promise<AnalysisReport> {
-  const res = await fetchWithAuth("/analysis/run", { method: "POST" });
+export async function runAnalysis(params?: AnalysisRunParams): Promise<AnalysisReport> {
+  const body: Record<string, string> = {};
+  if (params?.startDate) body.start_date = params.startDate;
+  if (params?.endDate) body.end_date = params.endDate;
+  const res = await fetchWithAuth("/analysis/run", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
   if (res.status === 404) throw new NoLogsError();
   if (!res.ok) throw new Error(`Failed to run analysis: ${res.status}`);
   return res.json();

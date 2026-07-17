@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { GraphSourceLog, toGraphPoints } from "@/lib/graph";
+import { GraphSourceLog, periodStartDate, toGraphPoints } from "@/lib/graph";
 import { useGraph, GraphApi } from "@/hooks/useGraph";
+import { swrWrapper } from "./helpers/swr";
 
 const TODAY = "2026-07-09";
 
@@ -68,6 +69,20 @@ describe("toGraphPoints", () => {
   });
 });
 
+describe("periodStartDate", () => {
+  it("should return the date 29 days before today for 30d", () => {
+    expect(periodStartDate("30d", "2026-07-09")).toBe("2026-06-10");
+  });
+
+  it("should return the date 89 days before today for 90d", () => {
+    expect(periodStartDate("90d", "2026-07-09")).toBe("2026-04-11");
+  });
+
+  it("should return undefined for all period", () => {
+    expect(periodStartDate("all", "2026-07-09")).toBeUndefined();
+  });
+});
+
 describe("useGraph", () => {
   function daysAgo(n: number): string {
     const d = new Date();
@@ -77,16 +92,18 @@ describe("useGraph", () => {
     return `${d.getFullYear()}-${mm}-${dd}`;
   }
 
-  it("should load logs on mount and expose graph points", async () => {
+  it("should load only the selected period on mount and expose graph points", async () => {
     const api: GraphApi = {
       listLogs: vi.fn().mockResolvedValue([makeLog(daysAgo(1))]),
     };
 
-    const { result } = renderHook(() => useGraph(api));
+    const { result } = renderHook(() => useGraph(api), { wrapper: swrWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.points).toHaveLength(1);
     expect(result.current.error).toBeNull();
+    // 初期表示は 30d のため、開始日を指定して取得範囲が絞り込まれる
+    expect(api.listLogs).toHaveBeenCalledWith({ startDate: daysAgo(29) });
   });
 
   it("should set error message when loading logs fails", async () => {
@@ -94,24 +111,38 @@ describe("useGraph", () => {
       listLogs: vi.fn().mockRejectedValue(new Error("network error")),
     };
 
-    const { result } = renderHook(() => useGraph(api));
+    const { result } = renderHook(() => useGraph(api), { wrapper: swrWrapper });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBe("ログの取得に失敗しました");
   });
 
-  it("should narrow points when period changes from all to 30d", async () => {
+  it("should fetch all logs without params when period changes to all", async () => {
     const api: GraphApi = {
       listLogs: vi.fn().mockResolvedValue([makeLog(daysAgo(60)), makeLog(daysAgo(1))]),
     };
 
-    const { result } = renderHook(() => useGraph(api));
+    const { result } = renderHook(() => useGraph(api), { wrapper: swrWrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     act(() => result.current.setPeriod("all"));
-    expect(result.current.points).toHaveLength(2);
+
+    await waitFor(() => expect(result.current.points).toHaveLength(2));
+    expect(api.listLogs).toHaveBeenLastCalledWith(undefined);
+  });
+
+  it("should narrow points when period changes back to 30d", async () => {
+    const api: GraphApi = {
+      listLogs: vi.fn().mockResolvedValue([makeLog(daysAgo(60)), makeLog(daysAgo(1))]),
+    };
+
+    const { result } = renderHook(() => useGraph(api), { wrapper: swrWrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => result.current.setPeriod("all"));
+    await waitFor(() => expect(result.current.points).toHaveLength(2));
 
     act(() => result.current.setPeriod("30d"));
-    expect(result.current.points).toHaveLength(1);
+    await waitFor(() => expect(result.current.points).toHaveLength(1));
   });
 });

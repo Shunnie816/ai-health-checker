@@ -35,10 +35,14 @@ Cloud Scheduler / 手動 → FastAPI → Firestore（ログ取得）→ Claude A
 
 #### 詳細フロー（実装: `backend/src/ai_health_checker/services/analysis_service.py`）
 
-`run_analysis_for_user()` が分析実行の中心ロジック。手動実行（`POST /analysis/run`）と
-Cloud Scheduler 定期実行（`POST /analysis/scheduler-run` → 全ユーザーをループして
-`run_analysis_for_user()` を呼ぶ `run_analysis_for_all_users()`）の両方から呼ばれる、
-共通の1本のフロー。
+`run_analysis_for_user()` が分析実行の中心ロジック。手動実行（`POST /analysis/run`、
+期間・切り口を指定可能）と Cloud Scheduler 定期実行（`POST /analysis/scheduler-run` →
+全ユーザーをループして `run_analysis_for_user()` を呼ぶ `run_analysis_for_all_users()`）の
+両方から呼ばれる、共通の1本のフロー。
+
+役割分担（#96 で整理）:
+- **手動実行**: 期間（プリセット/任意）と切り口（総合/疲労傾向/残業と気分/ジム習慣）を自由に指定するオンデマンド分析
+- **定期実行**: 毎月1日に前月1日〜末日の総合サマリーを生成し、メールで通知する月次レポート
 
 ```mermaid
 flowchart TD

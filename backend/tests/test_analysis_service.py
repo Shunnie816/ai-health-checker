@@ -155,6 +155,26 @@ class TestListReports:
         assert result[0].id == TEST_REPORT_ID
 
 
+class TestPreviousMonthPeriod:
+    def test_should_return_previous_month_range(self) -> None:
+        assert analysis_service.previous_month_period(date(2026, 7, 17)) == (
+            "2026-06-01",
+            "2026-06-30",
+        )
+
+    def test_should_cross_year_boundary_in_january(self) -> None:
+        assert analysis_service.previous_month_period(date(2026, 1, 10)) == (
+            "2025-12-01",
+            "2025-12-31",
+        )
+
+    def test_should_handle_leap_february(self) -> None:
+        assert analysis_service.previous_month_period(date(2028, 3, 1)) == (
+            "2028-02-01",
+            "2028-02-29",
+        )
+
+
 class TestRunAnalysisForAllUsers:
     def test_should_skip_users_with_no_logs_and_collect_the_rest(
         self, mock_db: MagicMock, monkeypatch: pytest.MonkeyPatch
@@ -168,7 +188,9 @@ class TestRunAnalysisForAllUsers:
 
         fake_report = object()
 
-        def fake_run_analysis_for_user(db: MagicMock, user_id: str) -> object:
+        def fake_run_analysis_for_user(
+            db: MagicMock, user_id: str, start_date: str, end_date: str
+        ) -> object:
             if user_id == "user-2":
                 raise ValueError("対象期間のログが見つかりません")
             return fake_report
@@ -180,3 +202,19 @@ class TestRunAnalysisForAllUsers:
         result = analysis_service.run_analysis_for_all_users(mock_db)
 
         assert result == [fake_report]
+
+    def test_should_analyze_previous_month_for_each_user(
+        self, mock_db: MagicMock, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_db.collection.return_value.stream.return_value = [MagicMock(id="user-1")]
+        mock_run = MagicMock(return_value=object())
+        monkeypatch.setattr(analysis_service, "run_analysis_for_user", mock_run)
+
+        analysis_service.run_analysis_for_all_users(mock_db)
+
+        expected_start, expected_end = analysis_service.previous_month_period(
+            date.today()
+        )
+        mock_run.assert_called_once_with(
+            mock_db, "user-1", expected_start, expected_end
+        )

@@ -93,11 +93,21 @@ def list_reports(db: Client, user_id: str) -> list[AnalysisReportInDB]:
     return [AnalysisReportInDB(**doc.to_dict()) for doc in query.stream()]
 
 
+def previous_month_period(today: date) -> tuple[str, str]:
+    """前月の1日〜末日を ISO 日付で返す（定期実行の月次サマリー用）"""
+    prev_end = today.replace(day=1) - timedelta(days=1)
+    return prev_end.replace(day=1).isoformat(), prev_end.isoformat()
+
+
 def run_analysis_for_all_users(db: Client) -> list[AnalysisReportInDB]:
+    """定期実行（毎月1日想定）: 全ユーザーへ前月1か月分の総合サマリーを生成する"""
+    start_date, end_date = previous_month_period(date.today())
     reports = []
     for user_doc in db.collection("users").stream():
         try:
-            reports.append(run_analysis_for_user(db, user_doc.id))
+            reports.append(
+                run_analysis_for_user(db, user_doc.id, start_date, end_date)
+            )
         except ValueError:
             continue
     return reports

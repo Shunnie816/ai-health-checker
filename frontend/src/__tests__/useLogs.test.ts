@@ -1,34 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useLogs, LogsApi } from "@/hooks/useLogs";
-import type { LogRecord } from "@/lib/api";
 import { swrWrapper } from "./helpers/swr";
-
-function makeLog(overrides: Partial<LogRecord> = {}): LogRecord {
-  return {
-    id: "log-1",
-    user_id: "user-1",
-    date: "2026-07-01",
-    is_holiday: false,
-    mood_morning: 2,
-    mood_after_work: 1,
-    fatigue: 3,
-    comment: null,
-    work_content: null,
-    work_start: "09:00",
-    work_end: "18:00",
-    gym: false,
-    overtime_minutes: 0,
-    overtime_score: 0,
-    created_at: "2026-07-01T00:00:00Z",
-    updated_at: "2026-07-01T00:00:00Z",
-    ...overrides,
-  };
-}
+import { makeLogRecord } from "./helpers/logs";
 
 describe("useLogs", () => {
   it("should fetch logs for the given period", async () => {
-    const log = makeLog();
+    const log = makeLogRecord("2026-07-01");
     const api: LogsApi = { listLogs: vi.fn().mockResolvedValue([log]) };
     const params = { startDate: "2026-06-10" };
 

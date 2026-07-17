@@ -6,9 +6,9 @@ import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { listLogs, LogRecord } from "@/lib/api";
 import { getEmotionColor, getFatigueColor, getOvertimeColor } from "@/lib/colors";
-import { formatDate, formatMood, todayString } from "@/lib/format";
-import { periodStartDate } from "@/lib/graph";
-import { LogsApi, useLogs } from "@/hooks/useLogs";
+import { formatDate, formatMood } from "@/lib/format";
+import { LogsApi } from "@/hooks/useLogs";
+import { useHomeLogs } from "@/hooks/useHomeLogs";
 import { ChevronRightIcon } from "@/components/ui/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyMessage, ErrorBanner, LoadingText } from "@/components/ui/status";
@@ -17,21 +17,31 @@ import { EmptyMessage, ErrorBanner, LoadingText } from "@/components/ui/status";
 const logsApi: LogsApi = { listLogs };
 
 export function HomeContent() {
-  // 初期表示は直近30日分のみ取得し、「もっと見る」で全期間を取得する（#92）
-  const [showAllRequested, setShowAllRequested] = useState(false);
-  const recent = useLogs(
-    { startDate: periodStartDate("30d", todayString()) },
-    logsApi
-  );
+  const { logs, loading, error, showAll, requestShowAll, filter, setFilter } =
+    useHomeLogs(logsApi);
 
-  // 直近30日が空なら自動で全期間へフォールバックする
-  // （新規ユーザーには空メッセージ、古いデータのみのユーザーにはそのデータを表示するため）
-  const showAll =
-    showAllRequested ||
-    (!recent.loading && !recent.error && recent.logs.length === 0);
-  const all = useLogs(undefined, logsApi, showAll);
+  // 期間フィルタの入力欄（適用前のドラフト値）
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [draftStart, setDraftStart] = useState("");
+  const [draftEnd, setDraftEnd] = useState("");
 
-  const { logs, loading, error } = showAll ? all : recent;
+  const canApplyFilter =
+    (draftStart !== "" || draftEnd !== "") &&
+    !(draftStart !== "" && draftEnd !== "" && draftStart > draftEnd);
+
+  function applyFilter() {
+    setFilter({
+      startDate: draftStart || undefined,
+      endDate: draftEnd || undefined,
+    });
+  }
+
+  function clearFilter() {
+    setDraftStart("");
+    setDraftEnd("");
+    setFilter(null);
+    setFilterOpen(false);
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -70,26 +80,80 @@ export function HomeContent() {
 
       {/* Log list */}
       <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-24 pt-3">
+
+        {/* Period filter (#93) */}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => setFilterOpen((open) => !open)}
+            className="cursor-pointer p-0 text-sm font-medium text-primary"
+          >
+            期間で絞り込む
+          </button>
+        </div>
+        {(filterOpen || filter !== null) && (
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-1 p-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                aria-label="開始日"
+                value={draftStart}
+                onChange={(e) => setDraftStart(e.target.value)}
+                className="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-2.5 py-2 text-sm text-fg outline-none"
+              />
+              <span className="shrink-0 text-sm text-fg-muted">〜</span>
+              <input
+                type="date"
+                aria-label="終了日"
+                value={draftEnd}
+                onChange={(e) => setDraftEnd(e.target.value)}
+                className="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-2.5 py-2 text-sm text-fg outline-none"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={applyFilter}
+                disabled={!canApplyFilter}
+                className="flex-1 cursor-pointer rounded-full bg-primary py-1.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                絞り込む
+              </button>
+              {filter !== null && (
+                <button
+                  type="button"
+                  onClick={clearFilter}
+                  className="flex-1 cursor-pointer rounded-full border border-border py-1.5 text-sm text-fg-secondary transition-colors hover:bg-surface-2"
+                >
+                  クリア
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {loading && logs.length === 0 ? (
           <LoadingText />
         ) : error && logs.length === 0 ? (
           <ErrorBanner>{error}</ErrorBanner>
         ) : logs.length === 0 ? (
-          // 全期間へのフォールバック中は空メッセージを出さない
-          showAll ? (
+          filter !== null ? (
+            <EmptyMessage>この期間の記録はありません。</EmptyMessage>
+          ) : showAll ? (
             <EmptyMessage>
               まだログがありません。<br />最初の記録をつけましょう！
             </EmptyMessage>
           ) : (
+            // 全期間へのフォールバック中は空メッセージを出さない
             <LoadingText />
           )
         ) : (
           <>
             {logs.map((log) => <LogCard key={log.id} log={log} />)}
-            {!showAll && (
+            {!showAll && filter === null && (
               <button
                 type="button"
-                onClick={() => setShowAllRequested(true)}
+                onClick={requestShowAll}
                 className="mt-1 cursor-pointer self-center rounded-full border border-border px-4 py-1.5 text-sm text-fg-secondary transition-colors hover:bg-surface-1"
               >
                 過去のログをすべて表示

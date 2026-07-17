@@ -108,6 +108,7 @@ export async function runAnalysis(params?: AnalysisRunParams): Promise<AnalysisR
   const body: Record<string, string> = {};
   if (params?.startDate) body.start_date = params.startDate;
   if (params?.endDate) body.end_date = params.endDate;
+  if (params?.focus) body.focus = params.focus;
   const res = await fetchWithAuth("/analysis/run", {
     method: "POST",
     body: JSON.stringify(body),

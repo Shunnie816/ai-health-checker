@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { listReports, runAnalysis } from "@/lib/api";
 import {
+  AnalysisFocus,
   AnalysisPeriod,
   AnalysisReport,
+  ANALYSIS_FOCUS_OPTIONS,
   ANALYSIS_PERIOD_OPTIONS,
+  analysisFocusLabel,
   analysisPeriodParams,
 } from "@/lib/reports";
 import { ReportsApi, useReports } from "@/hooks/useReports";
@@ -25,18 +28,21 @@ export function ReportsContent() {
   const [period, setPeriod] = useState<AnalysisPeriod>("30d");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
+  // 分析の切り口（#107）。デフォルトは総合
+  const [focus, setFocus] = useState<AnalysisFocus>("general");
 
   const canRun =
     period !== "custom" ||
     (customStart !== "" && customEnd !== "" && customStart <= customEnd);
 
   function handleRun() {
-    void run(
-      analysisPeriodParams(period, todayString(), {
+    void run({
+      ...analysisPeriodParams(period, todayString(), {
         startDate: customStart,
         endDate: customEnd,
-      })
-    );
+      }),
+      focus,
+    });
   }
 
   return (
@@ -70,6 +76,21 @@ export function ReportsContent() {
               onClick={() => setPeriod(option.value)}
               className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
                 period === option.value ? "bg-primary text-white" : "text-fg-secondary"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        {/* Analysis focus selector (#107) */}
+        <div className="flex rounded-full border border-border bg-surface-1 p-0.5">
+          {ANALYSIS_FOCUS_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setFocus(option.value)}
+              className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
+                focus === option.value ? "bg-primary text-white" : "text-fg-secondary"
               }`}
             >
               {option.label}
@@ -123,9 +144,14 @@ function ReportCard({ report }: { report: AnalysisReport }) {
       className="flex flex-col gap-2 rounded-xl border border-border bg-surface-1 p-4 no-underline"
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-fg">
-          {formatDate(report.start_date)} 〜 {formatDate(report.end_date)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-fg">
+            {formatDate(report.start_date)} 〜 {formatDate(report.end_date)}
+          </span>
+          <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-xs font-medium text-fg-muted">
+            {analysisFocusLabel(report.focus)}
+          </span>
+        </div>
         <ChevronRightIcon />
       </div>
       <p className="line-clamp-2 text-sm leading-relaxed text-fg-secondary">

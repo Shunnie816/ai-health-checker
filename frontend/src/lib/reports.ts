@@ -1,5 +1,7 @@
 import { addDaysString } from "@/lib/format";
 
+export type AnalysisFocus = "general" | "fatigue" | "overtime_mood" | "gym";
+
 export type AnalysisReport = {
   id: string;
   user_id: string;
@@ -7,13 +9,30 @@ export type AnalysisReport = {
   end_date: string;
   content: string;
   log_count: number;
+  focus: AnalysisFocus;
   created_at: string;
 };
 
 export type AnalysisRunParams = {
   startDate?: string;
   endDate?: string;
+  focus?: AnalysisFocus;
 };
+
+export const ANALYSIS_FOCUS_OPTIONS: { value: AnalysisFocus; label: string }[] = [
+  { value: "general", label: "総合" },
+  { value: "fatigue", label: "疲労傾向" },
+  { value: "overtime_mood", label: "残業と気分" },
+  { value: "gym", label: "ジム習慣" },
+];
+
+/** 切り口の表示ラベル。未知の値は「総合」として扱う */
+export function analysisFocusLabel(focus: string): string {
+  return (
+    ANALYSIS_FOCUS_OPTIONS.find((option) => option.value === focus)?.label ??
+    "総合"
+  );
+}
 
 export type AnalysisPeriodPreset = "7d" | "30d" | "90d";
 export type AnalysisPeriod = AnalysisPeriodPreset | "custom";

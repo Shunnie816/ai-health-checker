@@ -58,8 +58,30 @@ class TestRunAnalysisForUser:
         assert result.end_date == "2026-06-30"
         assert result.content == "疲労度と残業時間に相関が見られます。"
         assert result.log_count == 1
+        assert result.focus == "general"
         report_doc_ref.set.assert_called_once()
         mock_send_email.assert_called_once_with(TEST_EMAIL, result)
+
+    def test_should_save_focus_and_pass_it_to_llm(
+        self, mock_db: MagicMock, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_log_doc = MagicMock()
+        mock_log_doc.to_dict.return_value = make_workday_db_data()
+        stub_logs_in_period(mock_db, [mock_log_doc])
+
+        report_doc_ref = MagicMock()
+        report_doc_ref.id = TEST_REPORT_ID
+        get_reports_ref(mock_db).document.return_value = report_doc_ref
+
+        self._stub_collaborators(monkeypatch)
+
+        result = analysis_service.run_analysis_for_user(
+            mock_db, TEST_USER_ID, "2026-06-01", "2026-06-30", focus="gym"
+        )
+
+        assert result.focus == "gym"
+        llm_call = analysis_service.llm_service.generate_analysis_report.call_args
+        assert llm_call.args[2] == "gym"
 
     def test_should_raise_when_no_logs_in_period(
         self, mock_db: MagicMock, monkeypatch: pytest.MonkeyPatch

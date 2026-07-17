@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { LoadingText } from "@/components/ui/status";
 import { listLogs, listReports } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { analysisFocusLabel } from "@/lib/reports";
 import { ReportDetailApi, useReportDetail } from "@/hooks/useReportDetail";
 
 type Props = {
@@ -36,7 +37,7 @@ function ReportDetailContent({ id }: { id: string }) {
 
       <PageHeader
         title={`${formatDate(report.start_date)} 〜 ${formatDate(report.end_date)}`}
-        subtitle={`対象ログ ${report.log_count} 件`}
+        subtitle={`${analysisFocusLabel(report.focus)} / 対象ログ ${report.log_count} 件`}
         backHref="/reports"
         titleClassName="text-lg"
       />

@@ -20,8 +20,11 @@ async def run_analysis(
 ) -> AnalysisReportInDB:
     start_date = payload.start_date if payload else None
     end_date = payload.end_date if payload else None
+    focus = payload.focus if payload else "general"
     try:
-        return analysis_service.run_analysis_for_user(db, user_id, start_date, end_date)
+        return analysis_service.run_analysis_for_user(
+            db, user_id, start_date, end_date, focus
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 

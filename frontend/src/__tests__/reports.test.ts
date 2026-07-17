@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { analysisPeriodParams } from "@/lib/reports";
+import { analysisFocusLabel, analysisPeriodParams } from "@/lib/reports";
 
 const TODAY = "2026-07-17";
 const CUSTOM = { startDate: "2026-05-01", endDate: "2026-05-31" };
@@ -28,5 +28,15 @@ describe("analysisPeriodParams", () => {
 
   it("should return the custom range as is for custom", () => {
     expect(analysisPeriodParams("custom", TODAY, CUSTOM)).toEqual(CUSTOM);
+  });
+});
+
+describe("analysisFocusLabel", () => {
+  it("should return the label for a known focus", () => {
+    expect(analysisFocusLabel("fatigue")).toBe("疲労傾向");
+  });
+
+  it("should fall back to 総合 for an unknown focus", () => {
+    expect(analysisFocusLabel("unknown")).toBe("総合");
   });
 });

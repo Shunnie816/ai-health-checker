@@ -15,6 +15,7 @@ function makeReport(overrides: Partial<AnalysisReport> = {}): AnalysisReport {
     start_date: START_DATE,
     end_date: END_DATE,
     content: "疲労度と残業時間に相関が見られます。",
+    focus: "general",
     log_count: 2,
     created_at: "2026-06-30T00:00:00Z",
     ...overrides,

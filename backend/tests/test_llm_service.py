@@ -49,6 +49,46 @@ class TestGenerateAnalysisReport:
         assert kwargs["metadata"] == {"user_id": TEST_USER_ID}
         assert kwargs["model"] == "claude-haiku-4-5"
 
+    def test_should_use_focus_specific_instructions_in_system_prompt(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_client = _make_mock_client(["ok"])
+        monkeypatch.setattr(
+            llm_service.anthropic, "Anthropic", MagicMock(return_value=mock_client)
+        )
+
+        llm_service.generate_analysis_report("プロンプト", TEST_USER_ID, "fatigue")
+
+        system = mock_client.messages.create.call_args.kwargs["system"]
+        assert "疲労度の推移" in system
+        assert "全体的な傾向" not in system
+
+    def test_should_use_general_instructions_by_default(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_client = _make_mock_client(["ok"])
+        monkeypatch.setattr(
+            llm_service.anthropic, "Anthropic", MagicMock(return_value=mock_client)
+        )
+
+        llm_service.generate_analysis_report("プロンプト", TEST_USER_ID)
+
+        system = mock_client.messages.create.call_args.kwargs["system"]
+        assert "全体的な傾向" in system
+
+    def test_should_fall_back_to_general_for_unknown_focus(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_client = _make_mock_client(["ok"])
+        monkeypatch.setattr(
+            llm_service.anthropic, "Anthropic", MagicMock(return_value=mock_client)
+        )
+
+        llm_service.generate_analysis_report("プロンプト", TEST_USER_ID, "unknown")
+
+        system = mock_client.messages.create.call_args.kwargs["system"]
+        assert "全体的な傾向" in system
+
     def test_should_join_multiple_text_blocks(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:

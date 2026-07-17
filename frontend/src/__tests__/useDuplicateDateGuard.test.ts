@@ -4,32 +4,34 @@ import {
   useDuplicateDateGuard,
   DuplicateGuardApi,
 } from "@/hooks/useDuplicateDateGuard";
-
-const EXISTING = [
-  { id: "log-1", date: "2026-07-01" },
-  { id: "log-2", date: "2026-07-02" },
-];
+import { swrWrapper } from "./helpers/swr";
 
 describe("useDuplicateDateGuard", () => {
-  it("should return existing log id when date matches", async () => {
+  it("should return existing log id when a log exists on the date", async () => {
     const api: DuplicateGuardApi = {
-      listLogs: vi.fn().mockResolvedValue(EXISTING),
+      listLogs: vi.fn().mockResolvedValue([{ id: "log-2", date: "2026-07-02" }]),
     };
 
-    const { result } = renderHook(() =>
-      useDuplicateDateGuard("2026-07-02", true, api)
+    const { result } = renderHook(
+      () => useDuplicateDateGuard("2026-07-02", true, api),
+      { wrapper: swrWrapper }
     );
 
     await waitFor(() => expect(result.current).toBe("log-2"));
+    expect(api.listLogs).toHaveBeenCalledWith({
+      startDate: "2026-07-02",
+      endDate: "2026-07-02",
+    });
   });
 
-  it("should return null when no log matches the date", async () => {
+  it("should return null when no log exists on the date", async () => {
     const api: DuplicateGuardApi = {
-      listLogs: vi.fn().mockResolvedValue(EXISTING),
+      listLogs: vi.fn().mockResolvedValue([]),
     };
 
-    const { result } = renderHook(() =>
-      useDuplicateDateGuard("2026-07-03", true, api)
+    const { result } = renderHook(
+      () => useDuplicateDateGuard("2026-07-03", true, api),
+      { wrapper: swrWrapper }
     );
 
     await waitFor(() => expect(api.listLogs).toHaveBeenCalled());
@@ -38,11 +40,12 @@ describe("useDuplicateDateGuard", () => {
 
   it("should not fetch logs when disabled", () => {
     const api: DuplicateGuardApi = {
-      listLogs: vi.fn().mockResolvedValue(EXISTING),
+      listLogs: vi.fn().mockResolvedValue([]),
     };
 
-    const { result } = renderHook(() =>
-      useDuplicateDateGuard("2026-07-01", false, api)
+    const { result } = renderHook(
+      () => useDuplicateDateGuard("2026-07-01", false, api),
+      { wrapper: swrWrapper }
     );
 
     expect(api.listLogs).not.toHaveBeenCalled();
@@ -54,8 +57,9 @@ describe("useDuplicateDateGuard", () => {
       listLogs: vi.fn().mockRejectedValue(new Error("network error")),
     };
 
-    const { result } = renderHook(() =>
-      useDuplicateDateGuard("2026-07-01", true, api)
+    const { result } = renderHook(
+      () => useDuplicateDateGuard("2026-07-01", true, api),
+      { wrapper: swrWrapper }
     );
 
     await waitFor(() => expect(api.listLogs).toHaveBeenCalled());

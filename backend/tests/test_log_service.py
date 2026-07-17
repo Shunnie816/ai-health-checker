@@ -89,6 +89,25 @@ class TestListLogs:
         assert result[0].date == "2026-06-26"
 
 
+class TestGetLog:
+    def test_should_return_log_when_id_exists(self, mock_db: MagicMock) -> None:
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = make_workday_db_data()
+
+        result = log_service.get_log(mock_db, TEST_USER_ID, TEST_LOG_ID)
+
+        assert result.id == TEST_LOG_ID
+        assert result.date == "2026-06-26"
+
+    def test_should_raise_when_log_not_found(self, mock_db: MagicMock) -> None:
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = False
+
+        with pytest.raises(ValueError, match=TEST_LOG_ID):
+            log_service.get_log(mock_db, TEST_USER_ID, TEST_LOG_ID)
+
+
 class TestUpdateLog:
     def test_should_raise_when_log_not_found(self, mock_db: MagicMock) -> None:
         doc_ref = get_logs_ref(mock_db).document.return_value

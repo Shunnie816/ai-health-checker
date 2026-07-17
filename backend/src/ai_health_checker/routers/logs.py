@@ -31,6 +31,18 @@ async def list_logs(
     return log_service.list_logs(db, user_id, start_date, end_date)
 
 
+@router.get("/{log_id}", response_model=LogInDB)
+async def get_log(
+    log_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Client = Depends(get_db),
+) -> LogInDB:
+    try:
+        return log_service.get_log(db, user_id, log_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+
+
 @router.delete("/{log_id}", status_code=204)
 async def delete_log(
     log_id: str,

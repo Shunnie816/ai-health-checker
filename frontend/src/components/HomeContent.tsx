@@ -1,26 +1,37 @@
 "use client";
 
 import { signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { listLogs, LogRecord } from "@/lib/api";
 import { getEmotionColor, getFatigueColor, getOvertimeColor } from "@/lib/colors";
-import { formatDate, formatMood } from "@/lib/format";
+import { formatDate, formatMood, todayString } from "@/lib/format";
+import { periodStartDate } from "@/lib/graph";
+import { LogsApi, useLogs } from "@/hooks/useLogs";
 import { ChevronRightIcon } from "@/components/ui/icons";
 import { PageHeader } from "@/components/ui/page-header";
-import { EmptyMessage, LoadingText } from "@/components/ui/status";
+import { EmptyMessage, ErrorBanner, LoadingText } from "@/components/ui/status";
+
+// テストで差し替えられるよう DI で渡す（参照安定のためモジュールレベルで生成）
+const logsApi: LogsApi = { listLogs };
 
 export function HomeContent() {
-  const [logs, setLogs] = useState<LogRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  // 初期表示は直近30日分のみ取得し、「もっと見る」で全期間を取得する（#92）
+  const [showAllRequested, setShowAllRequested] = useState(false);
+  const recent = useLogs(
+    { startDate: periodStartDate("30d", todayString()) },
+    logsApi
+  );
 
-  useEffect(() => {
-    listLogs()
-      .then(setLogs)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  // 直近30日が空なら自動で全期間へフォールバックする
+  // （新規ユーザーには空メッセージ、古いデータのみのユーザーにはそのデータを表示するため）
+  const showAll =
+    showAllRequested ||
+    (!recent.loading && !recent.error && recent.logs.length === 0);
+  const all = useLogs(undefined, logsApi, showAll);
+
+  const { logs, loading, error } = showAll ? all : recent;
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
@@ -59,14 +70,32 @@ export function HomeContent() {
 
       {/* Log list */}
       <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-24 pt-3">
-        {loading ? (
+        {loading && logs.length === 0 ? (
           <LoadingText />
+        ) : error && logs.length === 0 ? (
+          <ErrorBanner>{error}</ErrorBanner>
         ) : logs.length === 0 ? (
-          <EmptyMessage>
-            まだログがありません。<br />最初の記録をつけましょう！
-          </EmptyMessage>
+          // 全期間へのフォールバック中は空メッセージを出さない
+          showAll ? (
+            <EmptyMessage>
+              まだログがありません。<br />最初の記録をつけましょう！
+            </EmptyMessage>
+          ) : (
+            <LoadingText />
+          )
         ) : (
-          logs.map((log) => <LogCard key={log.id} log={log} />)
+          <>
+            {logs.map((log) => <LogCard key={log.id} log={log} />)}
+            {!showAll && (
+              <button
+                type="button"
+                onClick={() => setShowAllRequested(true)}
+                className="mt-1 cursor-pointer self-center rounded-full border border-border px-4 py-1.5 text-sm text-fg-secondary transition-colors hover:bg-surface-1"
+              >
+                過去のログをすべて表示
+              </button>
+            )}
+          </>
         )}
       </div>
 

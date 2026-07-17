@@ -144,6 +144,30 @@ class TestListLogs:
         assert response.json() == []
 
 
+class TestGetLog:
+    def test_should_return_log_when_id_exists(
+        self, client: TestClient, mock_db: MagicMock
+    ) -> None:
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = True
+        doc_ref.get.return_value.to_dict.return_value = make_workday_db_data()
+
+        response = client.get(f"/logs/{TEST_LOG_ID}")
+
+        assert response.status_code == 200
+        assert response.json()["id"] == TEST_LOG_ID
+
+    def test_should_return_404_when_log_not_found(
+        self, client: TestClient, mock_db: MagicMock
+    ) -> None:
+        doc_ref = get_logs_ref(mock_db).document.return_value
+        doc_ref.get.return_value.exists = False
+
+        response = client.get("/logs/nonexistent-id")
+
+        assert response.status_code == 404
+
+
 class TestDeleteLog:
     def test_should_delete_log_and_return_204(
         self, client: TestClient, mock_db: MagicMock

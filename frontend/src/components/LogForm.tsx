@@ -8,6 +8,7 @@ import {
   useDuplicateDateGuard,
 } from "@/hooks/useDuplicateDateGuard";
 import { createLog, updateLog, deleteLog, listLogs, DuplicateDateError, LogRecord } from "@/lib/api";
+import { invalidateLogs } from "@/hooks/useLogs";
 import { ColoredSlider } from "@/components/ui/colored-slider";
 import { Card } from "@/components/ui/card";
 import { FormRow, Divider } from "@/components/ui/form-row";
@@ -23,7 +24,7 @@ function toNullableStr(v: string): string | null {
   return v.trim() === "" ? null : v.trim();
 }
 
-// 参照を安定させるためモジュールレベルで生成する（useDuplicateDateGuard の effect 再実行防止）
+// テストで差し替えられるよう DI で渡す（参照安定のためモジュールレベルで生成）
 const duplicateGuardApi: DuplicateGuardApi = { listLogs };
 
 export function LogForm({ existingLog }: Props) {
@@ -91,6 +92,8 @@ export function LogForm({ existingLog }: Props) {
       } else {
         await createLog(payload);
       }
+      // 一覧キャッシュを無効化してから遷移する（完了は待たず、遷移先で再検証される）
+      void invalidateLogs();
       router.push("/");
       router.refresh();
     } catch (err) {
@@ -108,6 +111,7 @@ export function LogForm({ existingLog }: Props) {
     if (!existingLog) return;
     try {
       await deleteLog(existingLog.id);
+      void invalidateLogs();
       router.push("/");
       router.refresh();
     } catch (err) {

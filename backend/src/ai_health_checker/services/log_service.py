@@ -38,6 +38,13 @@ def create_log(db: Client, user_id: str, payload: LogCreate) -> LogInDB:
     return LogInDB(**data)
 
 
+def get_log(db: Client, user_id: str, log_id: str) -> LogInDB:
+    doc = _logs_ref(db, user_id).document(log_id).get()
+    if not doc.exists:
+        raise ValueError(f"Log {log_id} not found")
+    return LogInDB(**doc.to_dict())
+
+
 def list_logs(
     db: Client,
     user_id: str,

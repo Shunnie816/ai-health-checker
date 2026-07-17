@@ -71,6 +71,13 @@ export async function updateLog(id: string, payload: LogUpdatePayload): Promise<
   return res.json();
 }
 
+export async function getLog(id: string): Promise<LogRecord | null> {
+  const res = await fetchWithAuth(`/logs/${id}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Failed to get log: ${res.status}`);
+  return res.json();
+}
+
 export async function deleteLog(id: string): Promise<void> {
   const res = await fetchWithAuth(`/logs/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`Failed to delete log: ${res.status}`);

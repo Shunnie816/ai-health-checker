@@ -7,8 +7,9 @@ import {
   DuplicateGuardApi,
   useDuplicateDateGuard,
 } from "@/hooks/useDuplicateDateGuard";
+import { usePreviousWorkdayLog } from "@/hooks/usePreviousWorkdayLog";
 import { createLog, updateLog, deleteLog, listLogs, DuplicateDateError, LogRecord } from "@/lib/api";
-import { invalidateLogs } from "@/hooks/useLogs";
+import { invalidateLogs, LogsApi } from "@/hooks/useLogs";
 import { ColoredSlider } from "@/components/ui/colored-slider";
 import { Card } from "@/components/ui/card";
 import { FormRow, Divider } from "@/components/ui/form-row";
@@ -26,6 +27,7 @@ function toNullableStr(v: string): string | null {
 
 // テストで差し替えられるよう DI で渡す（参照安定のためモジュールレベルで生成）
 const duplicateGuardApi: DuplicateGuardApi = { listLogs };
+const logsApi: LogsApi = { listLogs };
 
 export function LogForm({ existingLog }: Props) {
   const router = useRouter();
@@ -61,6 +63,25 @@ export function LogForm({ existingLog }: Props) {
     !existingLog,
     duplicateGuardApi
   );
+
+  // 前回の勤務日ログをワンタップで転記できるようにする（#95）
+  // 対象は入力中のフォームのみ（新規 or 追記待ちの編集）
+  const canCopyPrevious = !existingLog || isIncompleteLog;
+  const previousLog = usePreviousWorkdayLog(
+    fields.date,
+    canCopyPrevious && !fields.is_holiday,
+    logsApi
+  );
+
+  function applyPreviousLog() {
+    if (!previousLog) return;
+    setField("work_start", previousLog.work_start ?? "");
+    // 朝のみモードでは表示中の勤務開始だけを転記する
+    if (!fields.morning_only) {
+      setField("work_end", previousLog.work_end ?? "");
+      setField("work_content", previousLog.work_content ?? "");
+    }
+  }
 
   const moodColor = getEmotionColor(fields.mood_morning);
   const wemColor = getEmotionColor(fields.mood_after_work ?? 0);
@@ -236,6 +257,15 @@ export function LogForm({ existingLog }: Props) {
         {/* Work fields */}
         {!fields.is_holiday && (
           <>
+            {canCopyPrevious && previousLog && (
+              <button
+                type="button"
+                onClick={applyPreviousLog}
+                className="-mb-0.5 cursor-pointer self-end p-0 text-sm font-medium text-primary"
+              >
+                前回と同じ内容を入力
+              </button>
+            )}
             <Card className="flex flex-col gap-0 p-0 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3.5">
                 <span className="text-sm font-medium text-fg-secondary">開始</span>

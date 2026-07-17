@@ -13,6 +13,15 @@ export function formatDate(iso: string): string {
   return `${d.getFullYear()}/${mm}/${dd} ${DAY_LABELS[d.getDay()]}`;
 }
 
+/** ISO日付（YYYY-MM-DD）に日数を加算した ISO日付を返す（負数で過去日） */
+export function addDaysString(iso: string, days: number): string {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
 /** ローカルタイムの今日を ISO日付（YYYY-MM-DD）で返す */
 export function todayString(): string {
   const d = new Date();

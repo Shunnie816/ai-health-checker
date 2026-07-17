@@ -45,6 +45,34 @@ class TestRunAnalysis:
         assert body["id"] == TEST_REPORT_ID
         assert body["content"] == "分析結果です。"
 
+    def test_should_create_report_with_selected_focus(
+        self, client: TestClient, mock_db: MagicMock, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        mock_log_doc = MagicMock()
+        mock_log_doc.to_dict.return_value = make_workday_db_data()
+        stub_logs_in_period(mock_db, [mock_log_doc])
+        get_reports_ref(mock_db).document.return_value = MagicMock(id=TEST_REPORT_ID)
+        _stub_analysis_collaborators(monkeypatch)
+
+        response = client.post(
+            "/analysis/run",
+            json={
+                "start_date": "2026-06-01",
+                "end_date": "2026-06-30",
+                "focus": "overtime_mood",
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json()["focus"] == "overtime_mood"
+
+    def test_should_return_422_for_invalid_focus(
+        self, client: TestClient, mock_db: MagicMock
+    ) -> None:
+        response = client.post("/analysis/run", json={"focus": "invalid"})
+
+        assert response.status_code == 422
+
     def test_should_accept_empty_body_and_use_default_period(
         self, client: TestClient, mock_db: MagicMock, monkeypatch: pytest.MonkeyPatch
     ) -> None:

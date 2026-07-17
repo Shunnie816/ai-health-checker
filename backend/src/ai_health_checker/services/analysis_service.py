@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 from google.cloud.firestore import Client
 
 from ai_health_checker.dependencies import get_user_email
-from ai_health_checker.models.analysis import AnalysisReportInDB
+from ai_health_checker.models.analysis import AnalysisFocus, AnalysisReportInDB
 from ai_health_checker.models.log import LogInDB
 from ai_health_checker.services import llm_service, log_service
 from ai_health_checker.services.email_service import send_report_email
@@ -55,6 +55,7 @@ def run_analysis_for_user(
     user_id: str,
     start_date: str | None = None,
     end_date: str | None = None,
+    focus: AnalysisFocus = "general",
 ) -> AnalysisReportInDB:
     resolved_start, resolved_end = _resolve_period(start_date, end_date)
 
@@ -63,7 +64,7 @@ def run_analysis_for_user(
         raise ValueError("対象期間のログが見つかりません")
 
     prompt = _build_prompt(logs, resolved_start, resolved_end)
-    content = llm_service.generate_analysis_report(prompt, user_id)
+    content = llm_service.generate_analysis_report(prompt, user_id, focus)
 
     now = datetime.now(timezone.utc)
     doc_ref = _reports_ref(db, user_id).document()
@@ -74,6 +75,7 @@ def run_analysis_for_user(
         "end_date": resolved_end,
         "content": content,
         "log_count": len(logs),
+        "focus": focus,
         "created_at": now,
     }
     doc_ref.set(data)

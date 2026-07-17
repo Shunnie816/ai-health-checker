@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { NoLogsError } from "@/lib/errors";
-import { AnalysisReport } from "@/lib/reports";
+import { AnalysisReport, AnalysisRunParams } from "@/lib/reports";
 
 export type ReportsApi = {
   listReports: () => Promise<AnalysisReport[]>;
-  runAnalysis: () => Promise<AnalysisReport>;
+  runAnalysis: (params?: AnalysisRunParams) => Promise<AnalysisReport>;
 };
 
 // api はモジュールレベルなど参照が安定した場所で生成して渡すこと。
@@ -35,11 +35,11 @@ export function useReports(api: ReportsApi) {
     };
   }, [api]);
 
-  const run = useCallback(async () => {
+  const run = useCallback(async (params?: AnalysisRunParams) => {
     setRunning(true);
     setError(null);
     try {
-      const report = await api.runAnalysis();
+      const report = await api.runAnalysis(params);
       setReports((prev) => [report, ...prev]);
     } catch (err) {
       if (err instanceof NoLogsError) {

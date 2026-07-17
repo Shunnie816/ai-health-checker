@@ -69,6 +69,20 @@ describe("useReports", () => {
     expect(result.current.error).toBeNull();
   });
 
+  it("should pass selected period params to runAnalysis", async () => {
+    const api = makeApi();
+    const params = { startDate: "2026-07-01", endDate: "2026-07-17" };
+
+    const { result } = renderHook(() => useReports(api));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.run(params);
+    });
+
+    expect(api.runAnalysis).toHaveBeenCalledWith(params);
+  });
+
   it("should set no-logs message when run fails with NoLogsError", async () => {
     const api = makeApi({
       runAnalysis: vi.fn().mockRejectedValue(new NoLogsError()),

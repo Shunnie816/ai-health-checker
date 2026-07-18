@@ -65,12 +65,17 @@ Phase2 でこの2段+入力欄用の計3段に標準化する。
 
 ## レイアウト
 
-- モバイルファースト。PC は中央寄せ＋コンテンツ幅制限で対応
+- モバイルファースト。PC（`lg` = 1024px 以上）はコンテンツ幅を広げ、カード類を2カラム化して対応（#117）
   - 基本コンテンツ幅: `max-w-lg`（512px）
-  - グラフ画面のみ `max-w-3xl`（768px）
+  - PC 幅（`lg:`）: ホーム・レポート一覧・グラフ = `max-w-4xl`（896px）、
+    レポート詳細 = `max-w-3xl`（768px、本文の可読幅を優先）。
+    グラフ画面はモバイル〜タブレットでは従来どおり `max-w-3xl`
+  - ホームのログカード・レポート一覧のカードは `lg:grid-cols-2` で2カラム表示。
+    グラフの3チャートは気分が全幅、疲れ度・残業スコアが2カラム
+  - 入力フォーム（新規記録・編集）は PC でも `max-w-lg` のまま（縦長フォームは幅を広げない）
   - ヘッダーは `PageHeader` の `containerClassName` で本文と同じ幅に揃える
   - ホームの FAB はコンテンツカラムの右端に追従
-    （`right-[max(1.25rem,calc(50%-14.75rem))]`）
+    （`right-[max(1.25rem,calc(50%-14.75rem))]`、`lg:` では `calc(50%-26.75rem)`）
 - 画面ヘッダーは `components/ui/page-header.tsx`（PageHeader）を使う
 - 読み込み中・空状態・エラーは `components/ui/status.tsx`
   （LoadingText / EmptyMessage / ErrorBanner）を使う

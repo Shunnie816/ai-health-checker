@@ -63,21 +63,15 @@ export function useLogForm(initial?: Partial<LogFormValues>) {
   const { is_holiday, work_start, work_end } = fields;
 
   function setField<K extends keyof LogFormValues>(key: K, value: LogFormValues[K]) {
-    if (key === "is_holiday") {
-      if (value === true) {
-        setValue("work_start", "");
-        setValue("work_end", "");
-        setValue("mood_after_work", null);
-        setValue("work_content", "");
-      } else {
-        if (form.getValues("mood_after_work") === null) {
-          setValue("mood_after_work", 0);
-        }
-      }
+    // 1日の終わりの気分は休日も記録するため、休日切替でクリアしない
+    if (key === "is_holiday" && value === true) {
+      setValue("work_start", "");
+      setValue("work_end", "");
+      setValue("work_content", "");
     }
     // 朝のみ→1日分へ切り替えたとき、未入力の夕方項目にデフォルト値を補う
     if (key === "morning_only" && value === false) {
-      if (!form.getValues("is_holiday") && form.getValues("mood_after_work") === null) {
+      if (form.getValues("mood_after_work") === null) {
         setValue("mood_after_work", 0);
       }
     }

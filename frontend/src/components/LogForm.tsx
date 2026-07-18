@@ -44,7 +44,10 @@ export function LogForm({ existingLog }: Props) {
         is_holiday: existingLog.is_holiday,
         morning_only: isIncompleteLog,
         mood_morning: existingLog.mood_morning,
-        mood_after_work: existingLog.mood_after_work,
+        // 休日は記録対象外だった頃のログは null のため、記録済みログの編集時は
+        // スライダーの表示値に合わせて 0 で初期化する
+        mood_after_work:
+          existingLog.mood_after_work ?? (isIncompleteLog ? null : 0),
         fatigue: existingLog.fatigue ?? 3,
         comment: existingLog.comment ?? "",
         work_content: existingLog.work_content ?? "",
@@ -98,8 +101,7 @@ export function LogForm({ existingLog }: Props) {
         date: data.date,
         is_holiday: data.is_holiday,
         mood_morning: data.mood_morning,
-        mood_after_work:
-          data.is_holiday || morning ? null : (data.mood_after_work ?? 0),
+        mood_after_work: morning ? null : (data.mood_after_work ?? 0),
         fatigue: morning ? null : data.fatigue,
         comment: toNullableStr(data.comment),
         work_content:
@@ -309,29 +311,30 @@ export function LogForm({ existingLog }: Props) {
           </Card>
         )}
 
-        {/* Work-end mood + work content */}
-        {!fields.is_holiday && !fields.morning_only && (
-          <>
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <span className="text-sm font-medium text-fg-secondary">仕事終わりの気分</span>
-                <span className="text-2xl font-semibold tracking-tight" style={{ color: wemColor }}>
-                  {formatMood(fields.mood_after_work ?? 0)}
-                </span>
-              </div>
-              <ColoredSlider min={-5} max={5} value={fields.mood_after_work ?? 0} onChange={(v) => setField("mood_after_work", v)} color={wemColor} minLabel="−5" maxLabel="+5" midLabel="0" />
-            </Card>
+        {/* End-of-day mood: 休日も記録する */}
+        {!fields.morning_only && (
+          <Card>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-sm font-medium text-fg-secondary">1日の終わりの気分</span>
+              <span className="text-2xl font-semibold tracking-tight" style={{ color: wemColor }}>
+                {formatMood(fields.mood_after_work ?? 0)}
+              </span>
+            </div>
+            <ColoredSlider min={-5} max={5} value={fields.mood_after_work ?? 0} onChange={(v) => setField("mood_after_work", v)} color={wemColor} minLabel="−5" maxLabel="+5" midLabel="0" />
+          </Card>
+        )}
 
-            <Card>
-              <label className="mb-2.5 block text-sm font-medium text-fg-secondary">仕事内容</label>
-              <textarea
-                value={fields.work_content}
-                onChange={(e) => setField("work_content", e.target.value)}
-                placeholder="今日の業務内容…"
-                className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-fg outline-none placeholder:text-fg-muted"
-              />
-            </Card>
-          </>
+        {/* Work content */}
+        {!fields.is_holiday && !fields.morning_only && (
+          <Card>
+            <label className="mb-2.5 block text-sm font-medium text-fg-secondary">仕事内容</label>
+            <textarea
+              value={fields.work_content}
+              onChange={(e) => setField("work_content", e.target.value)}
+              placeholder="今日の業務内容…"
+              className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-fg outline-none placeholder:text-fg-muted"
+            />
+          </Card>
         )}
 
         {/* Gym */}

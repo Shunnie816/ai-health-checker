@@ -10,6 +10,7 @@ import { formatDate, formatMood } from "@/lib/format";
 import { LogsApi } from "@/hooks/useLogs";
 import { useHomeLogs } from "@/hooks/useHomeLogs";
 import { ChevronRightIcon } from "@/components/ui/icons";
+import { ConfirmSheet } from "@/components/ui/confirm-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyMessage, ErrorBanner, LoadingText } from "@/components/ui/status";
 
@@ -19,6 +20,9 @@ const logsApi: LogsApi = { listLogs };
 export function HomeContent() {
   const { logs, loading, error, showAll, requestShowAll, filter, setFilter } =
     useHomeLogs(logsApi);
+
+  // 誤タップで即ログアウトされないよう確認をはさむ（#116）
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // 期間フィルタの入力欄（適用前のドラフト値）
   const [filterOpen, setFilterOpen] = useState(false);
@@ -65,7 +69,7 @@ export function HomeContent() {
             </Link>
             <button
               type="button"
-              onClick={() => signOut(auth)}
+              onClick={() => setShowLogoutConfirm(true)}
               aria-label="ログアウト"
               title="ログアウト"
               className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-fg-secondary transition-colors hover:bg-surface-1"
@@ -171,6 +175,17 @@ export function HomeContent() {
       >
         +
       </Link>
+
+      {/* Logout confirmation bottom sheet */}
+      <ConfirmSheet
+        open={showLogoutConfirm}
+        title="ログアウトしますか？"
+        message="同じアカウントでログインすれば、記録は引き続き利用できます。"
+        confirmLabel="ログアウトする"
+        confirmVariant="primary"
+        onConfirm={() => signOut(auth)}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
     </div>
   );
 }

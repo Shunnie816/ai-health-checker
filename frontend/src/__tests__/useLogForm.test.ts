@@ -80,7 +80,6 @@ const validHolidayBase = {
   is_holiday: true,
   work_start: "",
   work_end: "",
-  mood_after_work: null,
   work_content: "",
 };
 
@@ -156,6 +155,24 @@ describe("logFormSchema — 休日バリデーション", () => {
     const result = logFormSchema.safeParse({ ...validHolidayBase, work_start: "", work_end: "" });
     expect(result.success).toBe(true);
   });
+
+  it("should fail when mood_after_work is null on a holiday", () => {
+    const result = logFormSchema.safeParse({ ...validHolidayBase, mood_after_work: null });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const paths = result.error.issues.map((i) => i.path[0]);
+      expect(paths).toContain("mood_after_work");
+    }
+  });
+
+  it("should pass validation without mood_after_work on a holiday in morning-only mode", () => {
+    const result = logFormSchema.safeParse({
+      ...validHolidayBase,
+      morning_only: true,
+      mood_after_work: null,
+    });
+    expect(result.success).toBe(true);
+  });
 });
 
 // ─── useLogForm フック挙動 ────────────────────────────────
@@ -181,7 +198,7 @@ describe("useLogForm", () => {
     expect(result.current.overtimePreview).toBeNull();
   });
 
-  it("should clear work fields when switching to holiday mode", () => {
+  it("should clear work fields but keep mood_after_work when switching to holiday mode", () => {
     const mockInitial = {
       is_holiday: false,
       work_start: "09:00",
@@ -198,7 +215,7 @@ describe("useLogForm", () => {
     const { fields } = result.current;
     expect(fields.work_start).toBe("");
     expect(fields.work_end).toBe("");
-    expect(fields.mood_after_work).toBeNull();
+    expect(fields.mood_after_work).toBe(2);
     expect(fields.work_content).toBe("");
   });
 
@@ -230,6 +247,21 @@ describe("useLogForm", () => {
     });
 
     expect(result.current.fields.morning_only).toBe(false);
+    expect(result.current.fields.mood_after_work).toBe(0);
+  });
+
+  it("should restore default mood_after_work on holiday when switching to full-day mode", () => {
+    const mockInitial = {
+      is_holiday: true,
+      morning_only: true,
+      mood_after_work: null,
+    };
+    const { result } = renderHook(() => useLogForm(mockInitial));
+
+    act(() => {
+      result.current.setField("morning_only", false);
+    });
+
     expect(result.current.fields.mood_after_work).toBe(0);
   });
 });

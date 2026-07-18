@@ -41,7 +41,7 @@ def _build_prompt(logs: list[LogInDB], start_date: str, end_date: str) -> str:
         )
         lines.append(
             f"- {log.date}: 朝の気分{log.mood_morning} "
-            f"終業後の気分{mood_after_work} "
+            f"1日の終わりの気分{mood_after_work} "
             f"疲労度{fatigue} "
             f"残業スコア{overtime_score} "
             f"ジム{'あり' if log.gym else 'なし'} "

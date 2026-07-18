@@ -17,7 +17,7 @@
 | date | date | ✅ | - | 記録日 |
 | is_holiday | bool | ✅ | - | 休日フラグ（true の場合、勤務時間不要） |
 | mood_morning | int | ✅ | -5〜+5 | 朝の気分 |
-| mood_after_work | int | △ | -5〜+5 | 仕事終わりの気分（is_holiday=false の場合必須） |
+| mood_after_work | int | △ | -5〜+5 | 1日の終わりの気分（休日も記録。朝のみ記録時は後から追記） |
 | fatigue | int | ✅ | 1〜5 | 疲れ度 |
 | comment | text | - | - | 感想・気分の自由記述 |
 | work_content | text | - | - | その日の仕事内容（is_holiday=false の場合のみ） |

@@ -70,7 +70,7 @@ function MoodChart({ points }: { points: GraphPoint[] }) {
       title="気分"
       legend={[
         { color: "var(--color-primary)", label: "朝" },
-        { color: "var(--color-secondary)", label: "仕事終わり" },
+        { color: "var(--color-secondary)", label: "1日の終わり" },
       ]}
     >
       <ResponsiveContainer width="100%" height="100%">
@@ -92,7 +92,7 @@ function MoodChart({ points }: { points: GraphPoint[] }) {
           <Line
             type="monotone"
             dataKey="mood_after_work"
-            name="仕事終わり"
+            name="1日の終わり"
             stroke="var(--color-secondary)"
             strokeWidth={2}
             dot={false}

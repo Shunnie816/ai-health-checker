@@ -24,22 +24,21 @@ export const logFormSchema = z
           path: ["work_start"],
         });
       }
-      if (!data.morning_only) {
-        if (!data.work_end) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "終了時刻を入力してください",
-            path: ["work_end"],
-          });
-        }
-        if (data.mood_after_work === null) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "気分を入力してください",
-            path: ["mood_after_work"],
-          });
-        }
+      if (!data.morning_only && !data.work_end) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "終了時刻を入力してください",
+          path: ["work_end"],
+        });
       }
+    }
+    // 1日の終わりの気分は休日も記録する（朝のみモードでは後から追記）
+    if (!data.morning_only && data.mood_after_work === null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "1日の終わりの気分を入力してください",
+        path: ["mood_after_work"],
+      });
     }
   });
 

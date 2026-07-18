@@ -35,7 +35,7 @@ class LogCreate(BaseModel):
     is_holiday: bool
     mood_morning: int = Field(ge=-5, le=5, description="朝の気分 (-5〜+5)")
     mood_after_work: int | None = Field(
-        default=None, ge=-5, le=5, description="仕事終わりの気分 (-5〜+5)"
+        default=None, ge=-5, le=5, description="1日の終わりの気分 (-5〜+5)"
     )
     fatigue: int | None = Field(
         default=None, ge=1, le=5, description="疲れ度 (1〜5)"

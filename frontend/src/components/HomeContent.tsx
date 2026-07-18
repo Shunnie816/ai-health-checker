@@ -53,6 +53,7 @@ export function HomeContent() {
       <PageHeader
         title="HealthLog"
         subtitle="直近の記録"
+        containerClassName="max-w-lg lg:max-w-4xl"
         actions={
           <>
             <Link
@@ -83,7 +84,7 @@ export function HomeContent() {
       />
 
       {/* Log list */}
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-24 pt-3">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-24 pt-3 lg:max-w-4xl">
 
         {/* Period filter (#93) */}
         <div className="flex justify-end">
@@ -153,7 +154,10 @@ export function HomeContent() {
           )
         ) : (
           <>
-            {logs.map((log) => <LogCard key={log.id} log={log} />)}
+            {/* PC ではカードを2カラムで並べる（#117） */}
+            <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-3">
+              {logs.map((log) => <LogCard key={log.id} log={log} />)}
+            </div>
             {!showAll && filter === null && (
               <button
                 type="button"
@@ -171,7 +175,7 @@ export function HomeContent() {
       <Link
         href="/logs/new"
         aria-label="新規記録"
-        className="fixed bottom-7 right-[max(1.25rem,calc(50%-14.75rem))] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-3xl leading-none text-white shadow-xl"
+        className="fixed bottom-7 right-[max(1.25rem,calc(50%-14.75rem))] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-3xl leading-none text-white shadow-xl lg:right-[max(1.25rem,calc(50%-26.75rem))]"
       >
         +
       </Link>

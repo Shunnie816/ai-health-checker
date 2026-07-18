@@ -28,14 +28,17 @@ const commonAxisProps = {
   tickLine: false,
 } as const;
 
-/** 気分・疲れ度・残業スコアの3チャートをまとめて描画する */
+/** 気分・疲れ度・残業スコアの3チャートをまとめて描画する。
+ * PC では気分を全幅、疲れ度・残業スコアを2カラムで並べる（#117） */
 export function LogTrendCharts({ points }: { points: GraphPoint[] }) {
   return (
-    <>
-      <MoodChart points={points} />
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="lg:col-span-2">
+        <MoodChart points={points} />
+      </div>
       <FatigueChart points={points} />
       <OvertimeChart points={points} />
-    </>
+    </div>
   );
 }
 

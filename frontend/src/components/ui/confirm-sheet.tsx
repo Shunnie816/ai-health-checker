@@ -11,7 +11,8 @@ type Props = {
   onCancel: () => void;
 };
 
-/** 確認用ボトムシート（削除・ログアウトなど、誤タップを防ぎたい操作に使う） */
+/** 確認用ダイアログ（削除・ログアウトなど、誤タップを防ぎたい操作に使う）。
+ * モバイルではボトムシート、PC幅（lg以上）では中央のモーダルとして表示する（#117） */
 export function ConfirmSheet({
   open,
   title,
@@ -24,12 +25,13 @@ export function ConfirmSheet({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-20 flex items-end bg-black/40">
-      <div className="mx-auto w-full max-w-lg rounded-t-2xl bg-canvas px-5 pb-10 pt-3 shadow-overlay">
-        <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-border" />
+    <div className="fixed inset-0 z-20 flex items-end bg-black/40 lg:items-center lg:justify-center lg:p-4">
+      <div className="mx-auto w-full max-w-lg rounded-t-2xl bg-canvas px-5 pb-10 pt-3 shadow-overlay lg:max-w-sm lg:rounded-2xl lg:p-6">
+        {/* グラバーはボトムシート専用の意匠のため PC では出さない */}
+        <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-border lg:hidden" />
         <h2 className="mb-1.5 text-lg font-semibold text-fg">{title}</h2>
         <p className="mb-6 text-sm leading-relaxed text-fg-muted">{message}</p>
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2.5 lg:flex-row-reverse lg:gap-3">
           <button
             type="button"
             onClick={onConfirm}

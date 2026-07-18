@@ -52,6 +52,7 @@ export function ReportsContent() {
         title="AI分析レポート"
         subtitle="ライフログの傾向分析"
         backHref="/"
+        containerClassName="max-w-lg lg:max-w-4xl"
         actions={
           <button
             type="button"
@@ -65,37 +66,40 @@ export function ReportsContent() {
       />
 
       {/* Body */}
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-10 pt-3">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-2 px-4 pb-10 pt-3 lg:max-w-4xl">
 
-        {/* Analysis period selector (#106) */}
-        <div className="flex rounded-full border border-border bg-surface-1 p-0.5">
-          {ANALYSIS_PERIOD_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setPeriod(option.value)}
-              className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
-                period === option.value ? "bg-primary text-white" : "text-fg-secondary"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-        {/* Analysis focus selector (#107) */}
-        <div className="flex rounded-full border border-border bg-surface-1 p-0.5">
-          {ANALYSIS_FOCUS_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setFocus(option.value)}
-              className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
-                focus === option.value ? "bg-primary text-white" : "text-fg-secondary"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
+        {/* PC では期間・切り口のセレクタを横並びにする（#117） */}
+        <div className="flex flex-col gap-2 lg:flex-row">
+          {/* Analysis period selector (#106) */}
+          <div className="flex rounded-full border border-border bg-surface-1 p-0.5 lg:flex-1">
+            {ANALYSIS_PERIOD_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setPeriod(option.value)}
+                className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
+                  period === option.value ? "bg-primary text-white" : "text-fg-secondary"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          {/* Analysis focus selector (#107) */}
+          <div className="flex rounded-full border border-border bg-surface-1 p-0.5 lg:flex-1">
+            {ANALYSIS_FOCUS_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setFocus(option.value)}
+                className={`flex-1 cursor-pointer rounded-full py-1.5 text-sm font-medium transition-colors ${
+                  focus === option.value ? "bg-primary text-white" : "text-fg-secondary"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
         {period === "custom" && (
           <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-1 p-4">
@@ -130,7 +134,10 @@ export function ReportsContent() {
             まだレポートがありません。<br />「分析を実行」で最初のレポートを作成しましょう。
           </EmptyMessage>
         ) : (
-          reports.map((report) => <ReportCard key={report.id} report={report} />)
+          // PC ではレポートカードを2カラムで並べる（#117）
+          <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-3">
+            {reports.map((report) => <ReportCard key={report.id} report={report} />)}
+          </div>
         )}
       </div>
     </div>

@@ -16,9 +16,9 @@ export function GraphContent() {
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
 
-      <PageHeader title="グラフ" subtitle="トレンド可視化" backHref="/" containerClassName="max-w-3xl" />
+      <PageHeader title="グラフ" subtitle="トレンド可視化" backHref="/" containerClassName="max-w-3xl lg:max-w-4xl" />
 
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 pb-10 pt-3">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 pb-10 pt-3 lg:max-w-4xl">
 
         {/* Period selector */}
         <div className="flex rounded-full border border-border bg-surface-1 p-0.5">

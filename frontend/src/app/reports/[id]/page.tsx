@@ -40,9 +40,11 @@ function ReportDetailContent({ id }: { id: string }) {
         subtitle={`${analysisFocusLabel(report.focus)} / 対象ログ ${report.log_count} 件`}
         backHref="/reports"
         titleClassName="text-lg"
+        containerClassName="max-w-lg lg:max-w-3xl"
       />
 
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-5 pb-10 pt-4">
+      {/* PC では本文の可読幅を保ちつつチャートを2カラムで見せる（#117） */}
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-5 pb-10 pt-4 lg:max-w-3xl">
 
         {/* Report body */}
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-fg">

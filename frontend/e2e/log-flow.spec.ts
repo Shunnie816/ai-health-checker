@@ -144,3 +144,19 @@ test("休日フラグの切り替えが保存され一覧に反映される", as
   await page.getByRole("button", { name: "保存する" }).click();
   await expect(page.getByText("平日")).toBeVisible();
 });
+
+test("ログアウトは確認シートを経由し、キャンセルでログイン状態を維持できる", async ({ page }) => {
+  // ログアウトボタンを押しても即ログアウトされず、確認シートが表示される
+  await page.getByRole("button", { name: "ログアウト", exact: true }).click();
+  await expect(page.getByText("ログアウトしますか？")).toBeVisible();
+
+  // キャンセルするとホームに留まりログイン状態のまま
+  await page.getByRole("button", { name: "キャンセル" }).click();
+  await expect(page.getByText("ログアウトしますか？")).not.toBeVisible();
+  await expect(page.getByText("直近の記録")).toBeVisible();
+
+  // 確認シートから実行するとログイン画面へ遷移する
+  await page.getByRole("button", { name: "ログアウト", exact: true }).click();
+  await page.getByRole("button", { name: "ログアウトする" }).click();
+  await expect(page).toHaveURL(/\/login/);
+});

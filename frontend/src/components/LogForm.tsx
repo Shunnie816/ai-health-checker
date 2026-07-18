@@ -12,6 +12,7 @@ import { createLog, updateLog, deleteLog, listLogs, DuplicateDateError, LogRecor
 import { invalidateLogs, LogsApi } from "@/hooks/useLogs";
 import { ColoredSlider } from "@/components/ui/colored-slider";
 import { Card } from "@/components/ui/card";
+import { ConfirmSheet } from "@/components/ui/confirm-sheet";
 import { FormRow, Divider } from "@/components/ui/form-row";
 import { Toggle } from "@/components/ui/toggle";
 import { getEmotionColor, getFatigueColor, getOvertimeColor } from "@/lib/colors";
@@ -374,35 +375,14 @@ export function LogForm({ existingLog }: Props) {
       </form>
 
       {/* Delete confirmation bottom sheet */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-20 flex items-end bg-black/40">
-          <div className="mx-auto w-full max-w-lg rounded-t-2xl bg-canvas px-5 pb-10 pt-3">
-            <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-border" />
-            <h2 className="mb-1.5 text-lg font-semibold text-fg">
-              記録を削除しますか？
-            </h2>
-            <p className="mb-6 text-sm leading-relaxed text-fg-muted">
-              この操作は取り消せません。
-            </p>
-            <div className="flex flex-col gap-2.5">
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="w-full cursor-pointer rounded-xl bg-danger py-3.5 text-base font-semibold text-white"
-              >
-                削除する
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="w-full cursor-pointer rounded-xl border border-border bg-surface-1 py-3.5 text-base font-medium text-fg"
-              >
-                キャンセル
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmSheet
+        open={showDeleteConfirm}
+        title="記録を削除しますか？"
+        message="この操作は取り消せません。"
+        confirmLabel="削除する"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

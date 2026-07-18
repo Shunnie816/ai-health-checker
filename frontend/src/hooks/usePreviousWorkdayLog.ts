@@ -9,8 +9,9 @@ import { logsKey, LogsApi } from "@/hooks/useLogs";
 const LOOKBACK_DAYS = 14;
 
 /**
- * 指定日より前の直近の勤務日（休日以外）ログを返す（「前回と同じ内容を入力」用）。
- * 直近 LOOKBACK_DAYS 日以内に勤務日ログがなければ null。
+ * 指定日より前の直近の、仕事内容が記録された勤務日（休日以外）ログを返す
+ * （「前回と同じ仕事内容を入力」用）。
+ * 直近 LOOKBACK_DAYS 日以内に該当ログがなければ null。
  * api はモジュールレベルなど参照が安定した場所で生成して渡すこと。
  */
 export function usePreviousWorkdayLog(
@@ -32,7 +33,7 @@ export function usePreviousWorkdayLog(
   if (!data) return null;
   return (
     [...data]
-      .filter((log) => !log.is_holiday)
+      .filter((log) => !log.is_holiday && log.work_content)
       .sort((a, b) => b.date.localeCompare(a.date))[0] ?? null
   );
 }

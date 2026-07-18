@@ -67,23 +67,20 @@ export function LogForm({ existingLog }: Props) {
     duplicateGuardApi
   );
 
-  // 前回の勤務日ログをワンタップで転記できるようにする（#95）
-  // 対象は入力中のフォームのみ（新規 or 追記待ちの編集）
+  // 前回の勤務日の仕事内容をワンタップで転記できるようにする（#95, #115）
+  // 勤務時間は毎日変動するため転記対象は work_content のみ。
+  // 対象は入力中のフォームのみ（新規 or 追記待ちの編集）。朝のみモードは
+  // 仕事内容を入力しないため対象外
   const canCopyPrevious = !existingLog || isIncompleteLog;
   const previousLog = usePreviousWorkdayLog(
     fields.date,
-    canCopyPrevious && !fields.is_holiday,
+    canCopyPrevious && !fields.is_holiday && !fields.morning_only,
     logsApi
   );
 
   function applyPreviousLog() {
     if (!previousLog) return;
-    setField("work_start", previousLog.work_start ?? "");
-    // 朝のみモードでは表示中の勤務開始だけを転記する
-    if (!fields.morning_only) {
-      setField("work_end", previousLog.work_end ?? "");
-      setField("work_content", previousLog.work_content ?? "");
-    }
+    setField("work_content", previousLog.work_content ?? "");
   }
 
   const moodColor = getEmotionColor(fields.mood_morning);
@@ -259,15 +256,6 @@ export function LogForm({ existingLog }: Props) {
         {/* Work fields */}
         {!fields.is_holiday && (
           <>
-            {canCopyPrevious && previousLog && (
-              <button
-                type="button"
-                onClick={applyPreviousLog}
-                className="-mb-0.5 cursor-pointer self-end p-0 text-sm font-medium text-primary"
-              >
-                前回と同じ内容を入力
-              </button>
-            )}
             <Card className="flex flex-col gap-0 p-0 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3.5">
                 <span className="text-sm font-medium text-fg-secondary">開始</span>
@@ -326,15 +314,26 @@ export function LogForm({ existingLog }: Props) {
 
         {/* Work content */}
         {!fields.is_holiday && !fields.morning_only && (
-          <Card>
-            <label className="mb-2.5 block text-sm font-medium text-fg-secondary">仕事内容</label>
-            <textarea
-              value={fields.work_content}
-              onChange={(e) => setField("work_content", e.target.value)}
-              placeholder="今日の業務内容…"
-              className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-fg outline-none placeholder:text-fg-muted"
-            />
-          </Card>
+          <>
+            {canCopyPrevious && previousLog && (
+              <button
+                type="button"
+                onClick={applyPreviousLog}
+                className="-mb-0.5 cursor-pointer self-end p-0 text-sm font-medium text-primary"
+              >
+                前回と同じ仕事内容を入力
+              </button>
+            )}
+            <Card>
+              <label className="mb-2.5 block text-sm font-medium text-fg-secondary">仕事内容</label>
+              <textarea
+                value={fields.work_content}
+                onChange={(e) => setField("work_content", e.target.value)}
+                placeholder="今日の業務内容…"
+                className="min-h-[72px] w-full resize-none bg-transparent text-sm leading-relaxed text-fg outline-none placeholder:text-fg-muted"
+              />
+            </Card>
+          </>
         )}
 
         {/* Gym */}

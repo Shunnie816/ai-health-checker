@@ -44,6 +44,24 @@ describe("usePreviousWorkdayLog", () => {
     await waitFor(() => expect(result.current?.date).toBe("2026-06-30"));
   });
 
+  it("should skip logs without work content and return the latest log that has one", async () => {
+    const api: LogsApi = {
+      listLogs: vi
+        .fn()
+        .mockResolvedValue([
+          makeLog("2026-07-01", { work_content: null }),
+          makeLog("2026-06-30"),
+        ]),
+    };
+
+    const { result } = renderHook(
+      () => usePreviousWorkdayLog("2026-07-02", true, api),
+      { wrapper: swrWrapper }
+    );
+
+    await waitFor(() => expect(result.current?.date).toBe("2026-06-30"));
+  });
+
   it("should return null when no workday log exists in the lookback window", async () => {
     const api: LogsApi = { listLogs: vi.fn().mockResolvedValue([]) };
 
